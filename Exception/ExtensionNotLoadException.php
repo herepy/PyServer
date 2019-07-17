@@ -10,7 +10,7 @@ namespace PyServer\Exception;
 
 use Throwable;
 
-class ExtensionException extends \Exception
+class ExtensionNotLoadException extends \Exception
 {
     public function __construct($extension, $code = 0, Throwable $previous = null)
     {

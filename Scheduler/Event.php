@@ -8,7 +8,7 @@
 
 namespace PyServer\Scheduler;
 
-use PyServer\Exception\ExtensionException;
+use PyServer\Exception\ExtensionNotLoadException;
 
 class Event implements SchedulerInterface
 {
@@ -43,7 +43,7 @@ class Event implements SchedulerInterface
     public static function init()
     {
         if (!extension_loaded("event") || class_exists("Event")) {
-            throw new ExtensionException("Event");
+            throw new ExtensionNotLoadException("Event");
         }
 
         self::$base=new \EventBase();
