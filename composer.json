@@ -13,6 +13,9 @@
         }
     ],
     "autoload": {
+        "files":[
+            "./Util/helper.php"
+        ],
         "psr-4": {
             "PyServer\\": "./"
         }
