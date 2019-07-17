@@ -11,9 +11,36 @@ namespace Worker;
 class MasterWorker implements WorkerInterface
 {
 
+    protected $protocol;
+
+    protected $address;
+
+    protected $port;
+
     public function __construct($address = null)
     {
+        if (!$address) {
+            return;
+        }
 
+        $tmp=explode("//",$address,2);
+        if (count($tmp) < 2) {
+            //todo 抛出异常
+        }
+
+        $protocol='\\Protocol\\'.ucfirst(strtolower($tmp[0]));
+        if (!class_exists($protocol)) {
+            //todo 抛出异常
+        }
+
+        $info=explode(":",$tmp[1]);
+        if (count($info) < 2) {
+            //todo 抛出异常
+        }
+
+        $this->address=$info[0];
+        $this->port=$info[1];
+        $this->protocol=$protocol;
     }
 
     public function setListen($protocol, $address, $port)
