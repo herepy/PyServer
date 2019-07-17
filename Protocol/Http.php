@@ -6,7 +6,7 @@
  * Time: 15:59
  */
 
-namespace Protocol;
+namespace PyServer\Protocol;
 
 class Http implements ProtocolInterface
 {

@@ -6,7 +6,7 @@
  * Time: 16:18
  */
 
-namespace Scheduler;
+namespace PyServer\Scheduler;
 
 interface SchedulerInterface
 {

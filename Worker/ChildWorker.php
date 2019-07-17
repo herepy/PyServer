@@ -6,7 +6,7 @@
  * Time: 15:45
  */
 
-namespace Worker;
+namespace PyServer\Worker;
 
 class ChildWorker implements WorkerInterface
 {

@@ -6,9 +6,9 @@
  * Time: 16:15
  */
 
-namespace Transport;
+namespace PyServer\Transport;
 
-use Worker\WorkerInterface;
+use PyServer\Worker\WorkerInterface;
 
 class Tcp implements Transport
 {

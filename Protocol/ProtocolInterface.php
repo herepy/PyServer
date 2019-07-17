@@ -6,7 +6,7 @@
  * Time: 15:49
  */
 
-namespace Protocol;
+namespace PyServer\Protocol;
 
 interface ProtocolInterface
 {

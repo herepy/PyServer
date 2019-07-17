@@ -6,7 +6,7 @@
  * Time: 16:46
  */
 
-namespace Exception;
+namespace PyServer\Exception;
 
 use Throwable;
 

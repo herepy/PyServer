@@ -1,0 +1,21 @@
+{
+    "name": "pengyu/min-server",
+    "description": "a compact network communication server wirtten by php",
+    "type": "library",
+    "require": {
+        "php": ">= 7.0.0"
+    },
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "pengyu",
+            "email": "917103429@qq.com"
+        }
+    ],
+    "autoload": {
+        "psr-4": {
+            "PyServer\\": "./"
+        }
+    },
+    "minimum-stability": "dev"
+}

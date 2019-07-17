@@ -6,9 +6,9 @@
  * Time: 16:30
  */
 
-namespace Scheduler;
+namespace PyServer\Scheduler;
 
-use Exception\ExtensionException;
+use PyServer\Exception\ExtensionException;
 
 class Event implements SchedulerInterface
 {

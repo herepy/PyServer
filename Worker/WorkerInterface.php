@@ -6,7 +6,7 @@
  * Time: 15:28
  */
 
-namespace Worker;
+namespace PyServer\Worker;
 
 interface WorkerInterface
 {
