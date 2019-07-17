@@ -23,18 +23,21 @@ class MasterWorker implements WorkerInterface
             return;
         }
 
-        $tmp=explode("//",$address,2);
+        $tmp=explode("://",$address,2);
         if (count($tmp) < 2) {
+            exit("address is not right");
             //todo 抛出异常
         }
 
-        $protocol='\\Protocol\\'.ucfirst(strtolower($tmp[0]));
+        $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($tmp[0]));
         if (!class_exists($protocol)) {
+            exit("protocol {$protocol} is not support");
             //todo 抛出异常
         }
 
         $info=explode(":",$tmp[1]);
         if (count($info) < 2) {
+            exit("address is not right");
             //todo 抛出异常
         }
 
