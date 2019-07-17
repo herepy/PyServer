@@ -95,6 +95,75 @@ class MasterWorker implements WorkerInterface
     public function run()
     {
         check_env();
+
+        $this->parseCmd();
+
+    }
+
+    protected function showLogo()
+    {
+        echo <<<usage
+    ------------------------------------------
+    |       pppppp      |      qqqqqq        |
+    |       p    P      |      q    q        |
+    |       p    P      |      q    q        |
+    |       pppppp      |      qqqqqq        |
+    |       p          / \          q        |
+    |       p         /   \         q        |
+    |       p        /     \        q        |
+    ------------------------------------------
+usage;
+
+    }
+
+    protected function showUsage()
+    {
+        //todo
+    }
+
+    protected function parseCmd()
+    {
+        //todo
+    }
+
+    protected function installSignal()
+    {
+        //todo
+    }
+
+    protected function signalHandler()
+    {
+        //todo
+    }
+
+    protected function deamon()
+    {
+        //todo
+    }
+
+    protected function forkChild()
+    {
+        //todo
+    }
+
+    protected function monitor()
+    {
+        //todo
+    }
+
+    protected function stop()
+    {
+        //todo
+    }
+
+    protected function reload()
+    {
+        //todo
+    }
+
+    protected function start()
+    {
+        //todo
     }
 
 }
