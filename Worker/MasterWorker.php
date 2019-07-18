@@ -102,7 +102,7 @@ class MasterWorker implements WorkerInterface
 
     protected function showLogo()
     {
-        echo <<<usage
+        echo <<<LOGO
     ------------------------------------------
     |       pppppp      |      qqqqqq        |
     |       p    P      |      q    q        |
@@ -112,18 +112,32 @@ class MasterWorker implements WorkerInterface
     |       p         /   \         q        |
     |       p        /     \        q        |
     ------------------------------------------
-usage;
+    
+LOGO;
 
     }
 
     protected function showUsage()
     {
-        //todo
+        echo <<<USAGE
+        
+Usage: php <file> cmd [option]
+    start   start to run PyServer,-d option is means run in deamon mode
+    stop    stop running PyServer,only used when PyServer run in deamon mode
+    status  get the running status and some other informations
+
+USAGE;
+
     }
 
     protected function parseCmd()
     {
-        //todo
+        global $argc,$argv;
+
+        if ($argc < 2) {
+            $this->showLogo();
+            $this->showUsage();
+        }
     }
 
     /**
