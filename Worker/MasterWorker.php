@@ -77,9 +77,16 @@ class MasterWorker implements WorkerInterface
             die("address is not right".PHP_EOL);
         }
 
-        $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($tmp[0]));
-        if (!class_exists($protocol)) {
-            die("protocol is not exist".PHP_EOL);
+        $protocol=ucfirst(strtolower($tmp[0]));
+        if (!class_exists('PyServer\\Protocol\\'.$protocol)) {
+            $transport=$protocol;
+            $protocol=get_protocol($transport);
+
+            if (!$protocol) {
+                die("protocol is not exist".PHP_EOL);
+            }
+        } else {
+            $protocol='PyServer\\Protocol\\'.$protocol;
         }
 
         $info=explode(":",$tmp[1]);
@@ -101,9 +108,16 @@ class MasterWorker implements WorkerInterface
      */
     public function setListen($protocol, $address, $port)
     {
-        $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($protocol));
-        if (!class_exists($protocol)) {
-            die("protocol is not exist".PHP_EOL);
+        $protocol=ucfirst(strtolower($protocol));
+        if (!class_exists('PyServer\\Protocol\\'.$protocol)) {
+            $transport=$protocol;
+            $protocol=get_protocol($transport);
+
+            if (!$protocol) {
+                die("protocol is not exist".PHP_EOL);
+            }
+        } else {
+            $protocol='PyServer\\Protocol\\'.$protocol;
         }
 
         $this->address=$address;
