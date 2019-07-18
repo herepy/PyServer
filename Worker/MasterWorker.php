@@ -314,11 +314,6 @@ USAGE;
         file_put_contents($this->pidFile,$pid);
     }
 
-    protected function forkChild()
-    {
-        //todo
-    }
-
     protected function monitor()
     {
         //todo
@@ -339,6 +334,9 @@ USAGE;
      */
     protected function start()
     {
+        //设置进程名
+        cli_set_process_title("PyServer-Master");
+
         //是否守护进程模式
         if ($this->deamon) {
             $this->deamon();
@@ -350,12 +348,28 @@ USAGE;
         //创建监听socket
         $this->listen();
 
+        //创建工作进程
+        $this->forkWorker();
+
+        //监控工作进程
+        while (1) {
+            $pid=pcntl_wait($status);
+            if ($pid > 0) {
+                echo "worker ".$pid." exited".PHP_EOL;
+            }
+            sleep(20);
+        }
+
+
     }
 
+    /**
+     * 创建主监听socket
+     */
     protected function listen()
     {
         if (!$this->socket) {
-            $domain=$this->transport == "unix"?AF_INET:AF_UNIX;
+            $domain=$this->transport == "unix"?AF_UNIX:AF_INET;
             $type=$this->transport == "tcp"?SOCK_STREAM:SOCK_DGRAM;
 
             if ($this->transport == "unix") {
@@ -373,6 +387,32 @@ USAGE;
             //不是unix,设置端口复用
             if ($protocol !== 0) {
                 socket_set_option($this->socket,SOL_SOCKET,SO_REUSEPORT,1);
+            }
+        }
+    }
+
+    /**
+     * 创建工作进程
+     */
+    protected function forkWorker()
+    {
+        if (count($this->workerPids) == $this->workerCount) {
+            return;
+        }
+
+        $needCount=$this->workerCount-count($this->workerPids);
+        for ($i=0;$i<$needCount;$i++) {
+            $pid=pcntl_fork();
+            if ($pid == -1) {
+                die("fork worker failed");
+            } else if ($pid > 0) {  //主进程
+                $this->workerPids[]=$pid;
+            } else {  //工作进程
+                //设置进程名
+                cli_set_process_title("PyServer-worker");
+                $worker=new ChildWorker($this->socket);
+                $worker->run();
+                echo "loop out";
             }
         }
     }

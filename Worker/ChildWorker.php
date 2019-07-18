@@ -8,17 +8,29 @@
 
 namespace PyServer\Worker;
 
+use PyServer\Scheduler\Event;
+
 class ChildWorker implements WorkerInterface
 {
+    /**
+     * @var resource 监听socket
+     */
+    protected $socket;
 
-    public function __construct($address = null)
+    /**
+     * @var int 标识id
+     */
+    protected $id;
+
+    /**
+     * @var object 调度器
+     */
+    protected $scheduler;
+
+    public function __construct($socket)
     {
-
-    }
-
-    public function setListen($protocol, $address, $port)
-    {
-        // TODO: Implement setListen() method.
+        $this->socket=$socket;
+        $this->id=spl_object_hash($this);
     }
 
     public function on($event, $callback)
@@ -33,7 +45,18 @@ class ChildWorker implements WorkerInterface
 
     public function run()
     {
-        // TODO: Implement run() method.
+
+        socket_bind($this->socket,"0.0.0.0",8080);
+        socket_listen($this->socket);
+        //todo 目前调度器都使用even
+        Event::init();
+        Event::add($this->socket,Event::TYPE_READ,[$this,"accept"]);
+        Event::loop();
+    }
+
+    protected function accept($fd)
+    {
+        echo $fd."connected".PHP_EOL;
     }
 
 }

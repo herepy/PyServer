@@ -35,14 +35,14 @@ class Event implements SchedulerInterface
     /**
      * const 事件类型
      */
-    const TYPE_TIMER=0;
-    const TYPE_SIGNAL=0;
-    const TYPE_READ=0;
-    const TYPE_WRITE=0;
+    const TYPE_TIMER=\Event::TIMEOUT;
+    const TYPE_SIGNAL=\Event::SIGNAL;
+    const TYPE_READ=\Event::READ;
+    const TYPE_WRITE=\Event::WRITE;
 
     public static function init()
     {
-        if (!extension_loaded("event") || class_exists("Event")) {
+        if (!extension_loaded("event") || !class_exists("\Event")) {
             throw new ExtensionNotLoadException("Event");
         }
 
@@ -58,7 +58,9 @@ class Event implements SchedulerInterface
         switch ($type) {
             case self::TYPE_READ:
             case self::TYPE_WRITE:
-
+                $event=new \Event(self::$base,$fd,$type,$callback,$arg);
+                $event->add();
+                break;
         }
     }
 
