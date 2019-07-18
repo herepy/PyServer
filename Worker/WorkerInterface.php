@@ -10,22 +10,6 @@ namespace PyServer\Worker;
 
 interface WorkerInterface
 {
-    /**
-     * 创建一个服务
-     * WorkerInterface constructor.
-     * @param null $address 服务监听地址 "http://0.0.0.0:80"
-     */
-    public function __construct($address=null);
-
-    /**
-     * 设置服务监听地址
-     *
-     * @param string $protocol 协议
-     * @param string $address 地址
-     * @param int $port 端口
-     * @return mixed
-     */
-    public function setListen($protocol,$address,$port);
 
     /**
      * 设置服务触发事件的回调函数
