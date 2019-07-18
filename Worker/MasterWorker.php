@@ -8,8 +8,6 @@
 
 namespace PyServer\Worker;
 
-use PyServer\Exception\ClassNotFoundException;
-
 class MasterWorker implements WorkerInterface
 {
 
@@ -29,6 +27,8 @@ class MasterWorker implements WorkerInterface
 
     protected $logFile;
 
+    protected $pidFile;
+
     public function __construct($address = null)
     {
         if (!$address) {
@@ -37,17 +37,17 @@ class MasterWorker implements WorkerInterface
 
         $tmp=explode("://",$address,2);
         if (count($tmp) < 2) {
-            throw new \Exception("address is not right");
+            die("address is not right");
         }
 
         $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($tmp[0]));
         if (!class_exists($protocol)) {
-            throw new ClassNotFoundException($protocol);
+            die("protocol is not exist");
         }
 
         $info=explode(":",$tmp[1]);
         if (count($info) < 2) {
-            throw new \Exception("address is not right");
+            die("address is not right");
         }
 
         $this->address=$info[0];
@@ -59,7 +59,7 @@ class MasterWorker implements WorkerInterface
     {
         $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($protocol));
         if (!class_exists($protocol)) {
-            throw new ClassNotFoundException($protocol);
+            die("protocol is not exist");
         }
 
         $this->address=$address;
@@ -126,19 +126,88 @@ usage;
         //todo
     }
 
+    /**
+     * 安装信号处理器
+     */
     protected function installSignal()
     {
-        //todo
+        //停止
+        pcntl_signal(SIGINT,[$this,"signalHandler"]);
+
+        //重启
+        pcntl_signal(SIGQUIT,[$this,"signalHandler"]);
+
+        //状态
+        pcntl_signal(SIGUSR1,[$this,"signalHandler"]);
     }
 
-    protected function signalHandler()
+    /**
+     * 信号处理器
+     * @param int $sinal 接收到的信号
+     */
+    protected function signalHandler($sinal)
     {
-        //todo
+        switch ($sinal) {
+            case SIGINT:
+                //todo
+                break;
+            case SIGQUIT:
+                //todo
+                break;
+            case SIGUSR1:
+                //todo
+                break;
+        }
     }
 
+    /**
+     * 获取主进程pid
+     * @return bool|string
+     */
+    protected function masterPid()
+    {
+        if (!file_exists($this->pidFile)) {
+            die("the masterPid is not exists:".$this->pidFile);
+        }
+        $pid=file_get_contents($this->pidFile);
+
+        //进程是否存活
+        if (posix_kill($pid,0) == false) {
+            unlink($this->pidFile);
+            die("pyserver is not run");
+        }
+        return $pid;
+    }
+
+    /**
+     * 守护进程方式运行
+     */
     protected function deamon()
     {
-        //todo
+        $pid=pcntl_fork();
+        if ($pid == -1) {
+            die("fork failed,please try again");
+        } else if ($pid > 0) {
+            exit(0);
+        }
+
+        $pid=pcntl_fork();
+        if ($pid == -1) {
+            die("fork failed,please try again");
+        } else if ($pid > 0) {
+            exit(0);
+        }
+
+        //设置会话组长
+        if (posix_setsid() == -1) {
+            die("make the current process a session leader failed");
+        }
+        umask(0);
+
+        //保存主进程pid到文件
+        $pid=posix_getpid();
+        $this->pidFile="/run/pyserver.pid";
+        file_put_contents($this->pidFile,$pid);
     }
 
     protected function forkChild()
