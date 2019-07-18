@@ -38,20 +38,21 @@ if (!function_exists("get_protocol")) {
      */
     function get_protocol($transport)
     {
+        $transport=strtolower($transport);
         $deafault=[
             "tcp"   =>  "http",
             "unix"  =>  "file",
             "udp"   =>  "file"
         ];
 
-        if (isset($deafault[$transport])) {
+        if (!isset($deafault[$transport])) {
             return null;
         }
 
         $protocol=$deafault[$transport];
         $protocol='\\PyServer\\Protocol\\'.ucfirst($protocol);
 
-        if (class_exists($protocol)) {
+        if (!class_exists($protocol)) {
             return null;
         }
         return $protocol;
