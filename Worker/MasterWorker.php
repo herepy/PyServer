@@ -11,24 +11,61 @@ namespace PyServer\Worker;
 class MasterWorker implements WorkerInterface
 {
 
+    /**
+     * @var string 应用层协议
+     */
     protected $protocol;
 
+    /**
+     * @var string 传输层协议
+     */
+    protected $transport;
+
+    /**
+     * @var string 监听地址
+     */
     protected $address;
 
+    /**
+     * @var int 监听端口
+     */
     protected $port;
 
+    /**
+     * @var bool 是否守护进程模式
+     */
     protected $deamon=false;
 
+    /**
+     * @var int 工作进程数量
+     */
     protected $workerCount=1;
 
+    /**
+     * @var array 工作进程pid数组
+     */
     protected $workerPids=[];
 
+    /**
+     * @var string 日志目录
+     */
     protected $logDir;
 
+    /**
+     * @var string 日志文件名
+     */
     protected $logFile;
 
+    /**
+     * @var string 存放守护进程pid文件
+     */
     protected $pidFile;
 
+    /**
+     * 创建一个主进程
+     * MasterWorker constructor.
+     * @param null $address 监听地址 如："http://0.0.0.0:8080"
+     */
     public function __construct($address = null)
     {
         if (!$address) {
@@ -55,6 +92,13 @@ class MasterWorker implements WorkerInterface
         $this->protocol=$protocol;
     }
 
+    /**
+     * 设置监听地址
+     * @param string $protocol 协议
+     * @param self $address 地址
+     * @param int $port 端口
+     * @return null
+     */
     public function setListen($protocol, $address, $port)
     {
         $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($protocol));
@@ -72,6 +116,11 @@ class MasterWorker implements WorkerInterface
         // TODO: Implement on() method.
     }
 
+    /**
+     * 配置信息
+     * @param array $config 配置内容
+     * @return bool
+     */
     public function config($config)
     {
         if (!is_array($config)) {
@@ -90,8 +139,12 @@ class MasterWorker implements WorkerInterface
             $this->logDir=dirname($config["logFile"]).DIRECTORY_SEPARATOR;
             $this->logDir=basename($config["logFile"]);
         }
+        return true;
     }
 
+    /**
+     * 运行主进程
+     */
     public function run()
     {
         check_env();
@@ -99,6 +152,9 @@ class MasterWorker implements WorkerInterface
         $this->parseCmd();
     }
 
+    /**
+     * 显示logo
+     */
     protected function showLogo()
     {
         echo <<<LOGO
@@ -116,6 +172,9 @@ LOGO;
 
     }
 
+    /**
+     * 显示用法
+     */
     protected function showUsage()
     {
         echo <<<USAGE
@@ -129,6 +188,9 @@ USAGE;
 
     }
 
+    /**
+     * 解析命令
+     */
     protected function parseCmd()
     {
         global $argc,$argv;
@@ -269,9 +331,27 @@ USAGE;
         //todo
     }
 
+    /**
+     * 开始执行
+     */
     protected function start()
     {
-        //todo
+        //是否守护进程模式
+        if ($this->deamon) {
+            $this->deamon();
+        }
+
+        //安装信号处理器
+        $this->installSignal();
+
+        //创建监听socket
+        $this->listen();
+
+    }
+
+    protected function listen()
+    {
+
     }
 
 }
