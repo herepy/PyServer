@@ -30,31 +30,3 @@ if (!function_exists("check_env")) {
     }
 }
 
-if (!function_exists("get_protocol")) {
-    /**
-     * 获取应用层协议
-     * @param string $transport 传输层名
-     * @return null|string 应用层完整名
-     */
-    function get_protocol($transport)
-    {
-        $transport=strtolower($transport);
-        $deafault=[
-            "tcp"   =>  "http",
-            "unix"  =>  "file",
-            "udp"   =>  "file"
-        ];
-
-        if (!isset($deafault[$transport])) {
-            return null;
-        }
-
-        $protocol=$deafault[$transport];
-        $protocol='\\PyServer\\Protocol\\'.ucfirst($protocol);
-
-        if (!class_exists($protocol)) {
-            return null;
-        }
-        return $protocol;
-    }
-}
