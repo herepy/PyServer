@@ -14,12 +14,12 @@ class MasterWorker implements WorkerInterface
     /**
      * @var string 应用层协议
      */
-    protected $protocol;
+    protected $protocol=null;
 
     /**
      * @var string 传输层协议
      */
-    protected $transport;
+    protected $transport="tcp";
 
     /**
      * @var string 监听地址
@@ -62,6 +62,11 @@ class MasterWorker implements WorkerInterface
     protected $pidFile;
 
     /**
+     * @var resource 监听socket
+     */
+    protected $socket;
+
+    /**
      * 创建一个主进程
      * MasterWorker constructor.
      * @param null $address 监听地址 如："http://0.0.0.0:8080"
@@ -72,31 +77,16 @@ class MasterWorker implements WorkerInterface
             return;
         }
 
-        $tmp=explode("://",$address,2);
-        if (count($tmp) < 2) {
-            die("address is not right".PHP_EOL);
-        }
-
-        $protocol=ucfirst(strtolower($tmp[0]));
-        if (!class_exists('PyServer\\Protocol\\'.$protocol)) {
-            $transport=$protocol;
-            $protocol=get_protocol($transport);
-
-            if (!$protocol) {
-                die("protocol is not exist".PHP_EOL);
-            }
-        } else {
-            $protocol='PyServer\\Protocol\\'.$protocol;
-        }
-
-        $info=explode(":",$tmp[1]);
+        $info=explode("://",$address,2);
         if (count($info) < 2) {
             die("address is not right".PHP_EOL);
         }
 
-        $this->address=$info[0];
-        $this->port=$info[1];
-        $this->protocol=$protocol;
+        $tmp=explode(":",$info[1],2);
+        if (count($tmp) < 2) {
+            die("address is not right".PHP_EOL);
+        }
+        $this->setListen($info[0],$tmp[0],$tmp[1]);
     }
 
     /**
@@ -108,21 +98,20 @@ class MasterWorker implements WorkerInterface
      */
     public function setListen($protocol, $address, $port)
     {
-        $protocol=ucfirst(strtolower($protocol));
-        if (!class_exists('PyServer\\Protocol\\'.$protocol)) {
-            $transport=$protocol;
-            $protocol=get_protocol($transport);
-
-            if (!$protocol) {
+        $protocol=strtolower($protocol);
+        if ($protocol == "udp") {
+            $this->transport="udp";
+        } else if ($protocol == "unix") {
+            $this->transport="unix";
+        } else {
+            if (!class_exists('PyServer\\Protocol\\'.ucfirst($protocol))) {
                 die("protocol is not exist".PHP_EOL);
             }
-        } else {
-            $protocol='PyServer\\Protocol\\'.$protocol;
+            $this->protocol=$protocol;
         }
 
         $this->address=$address;
         $this->port=$port;
-        $this->protocol=$protocol;
     }
 
     public function on($event, $callback)
@@ -365,7 +354,27 @@ USAGE;
 
     protected function listen()
     {
+        if (!$this->socket) {
+            $domain=$this->transport == "unix"?AF_INET:AF_UNIX;
+            $type=$this->transport == "tcp"?SOCK_STREAM:SOCK_DGRAM;
 
+            if ($this->transport == "unix") {
+                $protocol=0;
+            }else{
+                $protocol=getprotobyname($this->transport);
+            }
+
+            //创建监听socket
+            $this->socket=socket_create($domain,$type,$protocol);
+            if (!$this->socket) {
+                die("create socket failed");
+            }
+
+            //不是unix,设置端口复用
+            if ($protocol !== 0) {
+                socket_set_option($this->socket,SOL_SOCKET,SO_REUSEPORT,1);
+            }
+        }
     }
 
 }
