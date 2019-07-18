@@ -137,6 +137,26 @@ USAGE;
         if ($argc < 2) {
             $this->showLogo();
             $this->showUsage();
+            exit(0);
+        }
+
+        $cmd=$argv[1];
+        switch ($cmd) {
+            case "start":
+                if ($argc == 3 && $argv[2] == "-d") {
+                    $this->deamon=true;
+                }
+                $this->start();
+                break;
+            case "stop":
+                $this->stop();
+                break;
+            case "status":
+                //todo
+                break;
+            case "help":
+            default:
+                die($this->showUsage());
         }
     }
 
