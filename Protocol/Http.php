@@ -11,6 +11,8 @@ namespace PyServer\Protocol;
 class Http implements ProtocolInterface
 {
 
+    protected $transport;
+
     public static function size($buffer)
     {
         // TODO: Implement size() method.
