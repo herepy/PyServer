@@ -7,6 +7,9 @@
  */
 
 if (!function_exists("check_env")) {
+    /**
+     * 检查运行环境
+     */
     function check_env()
     {
         if (php_sapi_name() !== "cli") {
@@ -24,5 +27,33 @@ if (!function_exists("check_env")) {
         if (!extension_loaded("posix")) {
             die("Posix extension is necessary");
         }
+    }
+}
+
+if (!function_exists("get_protocol")) {
+    /**
+     * 获取应用层协议
+     * @param string $transport 传输层名
+     * @return null|string 应用层完整名
+     */
+    function get_protocol($transport)
+    {
+        $deafault=[
+            "tcp"   =>  "http",
+            "unix"  =>  "file",
+            "udp"   =>  "file"
+        ];
+
+        if (isset($deafault[$transport])) {
+            return null;
+        }
+
+        $protocol=$deafault[$transport];
+        $protocol='\\PyServer\\Protocol\\'.ucfirst($protocol);
+
+        if (class_exists($protocol)) {
+            return null;
+        }
+        return $protocol;
     }
 }
