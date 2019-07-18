@@ -162,13 +162,13 @@ class MasterWorker implements WorkerInterface
     {
         echo <<<LOGO
     ------------------------------------------
+    |       pppppp   \     /   qqqqqq        |
+    |       p    P    \   /    q    q        |
+    |       p    P     \ /     q    q        |
     |       pppppp      |      qqqqqq        |
-    |       p    P      |      q    q        |
-    |       p    P      |      q    q        |
-    |       pppppp      |      qqqqqq        |
-    |       p          / \          q        |
-    |       p         /   \         q        |
-    |       p        /     \        q        |
+    |       p           |           q        |
+    |       p           |           q        |
+    |       p           |           q        |
     ------------------------------------------
     
 LOGO;
