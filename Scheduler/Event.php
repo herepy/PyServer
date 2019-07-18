@@ -46,12 +46,20 @@ class Event implements SchedulerInterface
             throw new ExtensionNotLoadException("Event");
         }
 
+        if (self::$base) {
+            return;
+        }
+
         self::$base=new \EventBase();
     }
 
-    public static function add($fd, $type, $callback, $arg)
+    public static function add($fd, $type, $callback, $arg=[])
     {
-        // TODO: Implement add() method.
+        switch ($type) {
+            case self::TYPE_READ:
+            case self::TYPE_WRITE:
+
+        }
     }
 
     public static function del($fd, $type)
@@ -67,6 +75,11 @@ class Event implements SchedulerInterface
     public static function clear()
     {
         // TODO: Implement clear() method.
+    }
+
+    public static function loop()
+    {
+        self::$base->loop();
     }
 
 }
