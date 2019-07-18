@@ -37,17 +37,17 @@ class MasterWorker implements WorkerInterface
 
         $tmp=explode("://",$address,2);
         if (count($tmp) < 2) {
-            die("address is not right");
+            die("address is not right".PHP_EOL);
         }
 
         $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($tmp[0]));
         if (!class_exists($protocol)) {
-            die("protocol is not exist");
+            die("protocol is not exist".PHP_EOL);
         }
 
         $info=explode(":",$tmp[1]);
         if (count($info) < 2) {
-            die("address is not right");
+            die("address is not right".PHP_EOL);
         }
 
         $this->address=$info[0];
@@ -59,7 +59,7 @@ class MasterWorker implements WorkerInterface
     {
         $protocol='PyServer\\Protocol\\'.ucfirst(strtolower($protocol));
         if (!class_exists($protocol)) {
-            die("protocol is not exist");
+            die("protocol is not exist".PHP_EOL);
         }
 
         $this->address=$address;
@@ -97,7 +97,6 @@ class MasterWorker implements WorkerInterface
         check_env();
 
         $this->parseCmd();
-
     }
 
     protected function showLogo()
@@ -146,9 +145,15 @@ USAGE;
                 if ($argc == 3 && $argv[2] == "-d") {
                     $this->deamon=true;
                 }
+                if ($pid=$this->checkAndGetPid()) {
+                    die("already runed in deamon mode,pid is".$pid.PHP_EOL);
+                }
                 $this->start();
                 break;
             case "stop":
+                if (!$this->checkAndGetPid()) {
+                    die("PyServer in not running".PHP_EOL);
+                }
                 $this->stop();
                 break;
             case "status":
@@ -195,20 +200,20 @@ USAGE;
     }
 
     /**
-     * 获取主进程pid
-     * @return bool|string
+     * 检查并获取主进程pid
+     * @return bool|int
      */
-    protected function masterPid()
+    protected function checkAndGetPid()
     {
         if (!file_exists($this->pidFile)) {
-            die("the masterPid is not exists:".$this->pidFile);
+            return false;
         }
         $pid=file_get_contents($this->pidFile);
 
         //进程是否存活
         if (posix_kill($pid,0) == false) {
             unlink($this->pidFile);
-            die("pyserver is not run");
+            return false;
         }
         return $pid;
     }
@@ -220,21 +225,21 @@ USAGE;
     {
         $pid=pcntl_fork();
         if ($pid == -1) {
-            die("fork failed,please try again");
+            die("fork failed,please try again".PHP_EOL);
         } else if ($pid > 0) {
             exit(0);
         }
 
         $pid=pcntl_fork();
         if ($pid == -1) {
-            die("fork failed,please try again");
+            die("fork failed,please try again".PHP_EOL);
         } else if ($pid > 0) {
             exit(0);
         }
 
         //设置会话组长
         if (posix_setsid() == -1) {
-            die("make the current process a session leader failed");
+            die("make the current process a session leader failed".PHP_EOL);
         }
         umask(0);
 
