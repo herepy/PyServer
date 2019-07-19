@@ -14,7 +14,7 @@ interface SchedulerInterface
      * 初始化
      * @return mixed
      */
-    public static function init();
+    public function init();
 
     /**
      * 添加调度事件
@@ -24,7 +24,7 @@ interface SchedulerInterface
      * @param array $arg 自定义参数
      * @return mixed
      */
-    public static function add($fd,$type,$callback,$arg=[]);
+    public function add($fd,$type,$callback,$arg=[]);
 
     /**
      * 删除调度事件
@@ -32,7 +32,7 @@ interface SchedulerInterface
      * @param int $type
      * @return mixed
      */
-    public static function del($fd,$type);
+    public function del($fd,$type);
 
     /**
      * 手动触发事件
@@ -40,18 +40,18 @@ interface SchedulerInterface
      * @param int $type 类型
      * @return mixed
      */
-    public static function dispatch($fd,$type);
+    public function dispatch($fd,$type);
 
     /**
      * 清空调度器事件
      * @return mixed
      */
-    public static function clear();
+    public function clear();
 
     /**
      * 开始调度
      * @return mixed
      */
-    public static function loop();
+    public function loop();
 
 }

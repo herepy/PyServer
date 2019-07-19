@@ -15,22 +15,22 @@ class Event implements SchedulerInterface
     /**
      * @var object EventBase实例
      */
-    protected static $base;
+    protected $base;
 
     /**
      * @var array 一次性定时事件
      */
-    protected static $onceTimer=[];
+    protected $onceTimer=[];
 
     /**
      * @var array 定期执行事件
      */
-    protected static $timer=[];
+    protected $timer=[];
 
     /**
      * @var array 自定义事件，需手动dispatch调用
      */
-    protected static $event=[];
+    protected $event=[];
 
     /**
      * const 事件类型
@@ -40,48 +40,49 @@ class Event implements SchedulerInterface
     const TYPE_READ=\Event::READ;
     const TYPE_WRITE=\Event::WRITE;
 
-    public static function init()
+    public function init()
     {
         if (!extension_loaded("event") || !class_exists("\Event")) {
             throw new ExtensionNotLoadException("Event");
         }
 
-        if (self::$base) {
+        if ($this->base) {
             return;
         }
 
-        self::$base=new \EventBase();
+        $this->base=new \EventBase();
     }
 
-    public static function add($fd, $type, $callback, $arg=[])
+    public function add($fd, $type, $callback, $arg=[])
     {
+
         switch ($type) {
             case self::TYPE_READ:
             case self::TYPE_WRITE:
-                $event=new \Event(self::$base,$fd,$type,$callback,$arg);
+                $event=new \Event($this->base,$fd,\Event::READ,$callback,$fd);
                 $event->add();
                 break;
         }
     }
 
-    public static function del($fd, $type)
+    public function del($fd, $type)
     {
         // TODO: Implement del() method.
     }
 
-    public static function dispatch($fd, $type)
+    public function dispatch($fd, $type)
     {
         // TODO: Implement dispatch() method.
     }
 
-    public static function clear()
+    public function clear()
     {
         // TODO: Implement clear() method.
     }
 
-    public static function loop()
+    public function loop()
     {
-        self::$base->loop();
+        $this->base->loop();
     }
 
 }

@@ -349,16 +349,18 @@ USAGE;
         $this->listen();
 
         //创建工作进程
-        $this->forkWorker();
+//        $this->forkWorker();
+        $worker=new ChildWorker($this->socket);
+        $worker->run();
 
         //监控工作进程
-        while (1) {
-            $pid=pcntl_wait($status);
-            if ($pid > 0) {
-                echo "worker ".$pid." exited".PHP_EOL;
-            }
-            sleep(20);
-        }
+//        while (1) {
+//            $pid=pcntl_wait($status);
+//            if ($pid > 0) {
+//                echo "worker ".$pid." exited".PHP_EOL;
+//            }
+//            sleep(20);
+//        }
 
 
     }
@@ -412,7 +414,6 @@ USAGE;
                 cli_set_process_title("PyServer-worker");
                 $worker=new ChildWorker($this->socket);
                 $worker->run();
-                echo "loop out";
             }
         }
     }

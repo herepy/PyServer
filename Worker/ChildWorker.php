@@ -45,18 +45,12 @@ class ChildWorker implements WorkerInterface
 
     public function run()
     {
-
-        socket_bind($this->socket,"0.0.0.0",8080);
-        socket_listen($this->socket);
-        //todo 目前调度器都使用even
-        Event::init();
-        Event::add($this->socket,Event::TYPE_READ,[$this,"accept"]);
-        Event::loop();
     }
 
-    protected function accept($fd)
+    public function accept($socket)
     {
-        echo $fd."connected".PHP_EOL;
+        $con=socket_accept($socket);
+        echo "connected:".$con;
     }
 
 }
