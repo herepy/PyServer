@@ -52,7 +52,7 @@ class Tcp implements TransportInterface
             ChildWorker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
             $this->connections[intval($con)]=$con;
 
-            //todo 测试onConnceted回调
+            //todo onConnceted回调
             Event::dispatch("connect",[$this,$con]);
 
         }
@@ -90,17 +90,19 @@ class Tcp implements TransportInterface
             }
         }
 
-        //todo 后续内容处理
+        //todo onMessage回调
+        Event::dispatch("message",[$this,$fd]);
 
     }
 
     public function close($fd)
     {
-        // TODO: Implement close() method.
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[$fd]);
 
+        //todo onMessage回调
+        Event::dispatch("message",[$this,$fd]);
     }
 
 }

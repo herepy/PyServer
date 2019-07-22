@@ -356,6 +356,9 @@ USAGE;
             $this->deamon();
         }
 
+        //todo onMasterStart回调
+        Event::dispatch("masterStart",[$this]);
+
         //初始化调度器
         $this->initScheduler();
 

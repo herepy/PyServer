@@ -97,6 +97,9 @@ class ChildWorker implements WorkerInterface
 
     public function run()
     {
+        //todo onWorkerStart回调
+        Event::dispatch("workerStart",[$this]);
+
         //监听新连接
         self::$scheduler->add($this->socket,SchedulerInterface::TYPE_READ,[$this->transport,"accept"]);
         self::$scheduler->loop();
