@@ -8,6 +8,8 @@
 
 namespace PyServer\Worker;
 
+use PyServer\Scheduler\Event;
+
 class MasterWorker implements WorkerInterface
 {
 
@@ -42,7 +44,7 @@ class MasterWorker implements WorkerInterface
     protected $workerCount=1;
 
     /**
-     * @var array 工作进程pid数组
+     * @var array 工作进程pid数组 [$pid=>$pid]
      */
     protected $workerPids=[];
 
@@ -62,9 +64,9 @@ class MasterWorker implements WorkerInterface
     protected $pidFile;
 
     /**
-     * @var resource 监听socket
+     * @var \PyServer\Scheduler\SchedulerInterface 调度器实例
      */
-    protected $socket;
+    public static $scheduler;
 
     /**
      * 创建一个主进程
@@ -314,9 +316,20 @@ USAGE;
         file_put_contents($this->pidFile,$pid);
     }
 
+    /**
+     * 监控子进程状态
+     */
     protected function monitor()
     {
-        //todo
+        while (1) {
+            pcntl_signal_dispatch();
+            $pid=pcntl_wait($status);
+            if ($pid > 0) {
+                unset($this->workerPids[$pid]);
+                echo "worker ".$pid." exited".PHP_EOL;
+            }
+            pcntl_signal_dispatch();
+        }
     }
 
     protected function stop()
@@ -342,55 +355,28 @@ USAGE;
             $this->deamon();
         }
 
+        //初始化调度器
+        $this->initScheduler();
+
+        //创建工作进程
+        $this->forkWorker();
+
         //安装信号处理器
         $this->installSignal();
 
-        //创建监听socket
-        $this->listen();
-
-        //创建工作进程
-//        $this->forkWorker();
-        $worker=new ChildWorker($this->socket);
-        $worker->run();
-
         //监控工作进程
-//        while (1) {
-//            $pid=pcntl_wait($status);
-//            if ($pid > 0) {
-//                echo "worker ".$pid." exited".PHP_EOL;
-//            }
-//            sleep(20);
-//        }
-
+        $this->monitor();
 
     }
 
     /**
-     * 创建主监听socket
+     * 初始化调度器
      */
-    protected function listen()
+    protected function initScheduler()
     {
-        if (!$this->socket) {
-            $domain=$this->transport == "unix"?AF_UNIX:AF_INET;
-            $type=$this->transport == "tcp"?SOCK_STREAM:SOCK_DGRAM;
-
-            if ($this->transport == "unix") {
-                $protocol=0;
-            }else{
-                $protocol=getprotobyname($this->transport);
-            }
-
-            //创建监听socket
-            $this->socket=socket_create($domain,$type,$protocol);
-            if (!$this->socket) {
-                die("create socket failed");
-            }
-
-            //不是unix,设置端口复用
-            if ($protocol !== 0) {
-                socket_set_option($this->socket,SOL_SOCKET,SO_REUSEPORT,1);
-            }
-        }
+        $scheduler=new Event();
+        $scheduler->init();
+        self::$scheduler=$scheduler;
     }
 
     /**
@@ -408,12 +394,14 @@ USAGE;
             if ($pid == -1) {
                 die("fork worker failed");
             } else if ($pid > 0) {  //主进程
-                $this->workerPids[]=$pid;
+                $this->workerPids[$pid]=$pid;
             } else {  //工作进程
                 //设置进程名
                 cli_set_process_title("PyServer-worker");
-                $worker=new ChildWorker($this->socket);
+                $worker=new ChildWorker($this->transport,$this->address,$this->port);
                 $worker->run();
+                //工作进程异常退出loop
+                die("worker abnormal exit");
             }
         }
     }
