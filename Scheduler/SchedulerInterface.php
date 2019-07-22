@@ -28,7 +28,7 @@ interface SchedulerInterface
      * 添加调度事件
      * @param mixed $fd 标识
      * @param int $type 类型
-     * @param mixed $callback 回调函数
+     * @param callable $callback 回调函数
      * @param array $arg 自定义参数
      * @return mixed
      */
