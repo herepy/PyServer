@@ -27,7 +27,7 @@ class ChildWorker implements WorkerInterface
     /**
      * @var \PyServer\Scheduler\SchedulerInterface 调度器实例
      */
-    public $scheduler;
+    public static $scheduler;
 
     /**
      * @var \PyServer\Transport\TransportInterface 传输层实例
@@ -39,15 +39,17 @@ class ChildWorker implements WorkerInterface
      */
     protected $protocol;
 
-    /**
-     * @var array 所有连接fd [intval($fd)=>$fd]
-     */
-    public $connections=[];
-
 
     public function __construct($transport,$protocol,$address,$port)
     {
         $this->id=spl_object_hash($this);
+
+        if (!self::$scheduler) {
+            //todo 目前只有event调度器
+            self::$scheduler=new Event();
+            self::$scheduler->init();
+        }
+
         $this->listen($transport,$protocol,$address,$port);
     }
 
@@ -57,8 +59,6 @@ class ChildWorker implements WorkerInterface
         $transportName="\\PyServer\\Transport\\".ucfirst($transport);
         $this->transport=new $transportName($this,$this->protocol);
 
-        //todo 记录
-        echo "listen:".$address." port:".$port."\n";
         //创建监听socket
         $domain=$transport == "unix"?AF_UNIX:AF_INET;
         $type=$transport == "tcp"?SOCK_STREAM:SOCK_DGRAM;
@@ -97,25 +97,11 @@ class ChildWorker implements WorkerInterface
 
     public function run()
     {
-        //todo 目前只有event调度器
-        $this->scheduler=new Event();
-        $this->scheduler->init();
-        $this->scheduler->add($this->socket,SchedulerInterface::TYPE_READ,[$this,"accept"]);
-        $this->scheduler->loop();
+        //监听新连接
+        self::$scheduler->add($this->socket,SchedulerInterface::TYPE_READ,[$this->transport,"accept"]);
+        self::$scheduler->loop();
     }
 
-    public function accept($socket)
-    {
-        $con=socket_accept($socket);
-        if ($con) {
-            //非阻塞模式
-            socket_set_nonblock($con);
-            echo "client ".intval($con)." connected\n";
-
-            $this->scheduler->add($con,SchedulerInterface::TYPE_READ,[$this->transport,"read"]);
-            $this->connections[intval($con)]=$con;
-        }
-    }
 
 
 }

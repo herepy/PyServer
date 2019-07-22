@@ -326,6 +326,7 @@ USAGE;
             $pid=pcntl_wait($status);
             if ($pid > 0) {
                 unset($this->workerPids[$pid]);
+                //todo 记录日志
                 echo "worker ".$pid." exited".PHP_EOL;
             }
             pcntl_signal_dispatch();
