@@ -15,7 +15,7 @@ class Event implements SchedulerInterface
     /**
      * @var object EventBase实例
      */
-    protected $base;
+    public $base;
 
     /**
      * @var array 一次性定时事件
@@ -28,17 +28,9 @@ class Event implements SchedulerInterface
     protected $timer=[];
 
     /**
-     * @var array 自定义事件，需手动dispatch调用
+     * @var array read\write事件
      */
     protected $event=[];
-
-    /**
-     * const 事件类型
-     */
-    const TYPE_TIMER=\Event::TIMEOUT;
-    const TYPE_SIGNAL=\Event::SIGNAL;
-    const TYPE_READ=\Event::READ;
-    const TYPE_WRITE=\Event::WRITE;
 
     public function init()
     {
@@ -59,8 +51,10 @@ class Event implements SchedulerInterface
         switch ($type) {
             case self::TYPE_READ:
             case self::TYPE_WRITE:
-                $event=new \Event($this->base,$fd,\Event::READ,$callback,$fd);
+                $flag=$type == self::TYPE_READ ? (\Event::READ | \Event::PERSIST) : (\Event::WRITE | \Event::PERSIST);
+                $event=new \Event($this->base,$fd,$flag,$callback,$arg);
                 $event->add();
+                $this->event[intval($fd)][$type]=$event;
                 break;
         }
     }
