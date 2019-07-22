@@ -8,6 +8,7 @@
 
 namespace PyServer\Transport;
 
+use PyServer\Scheduler\Event;
 use PyServer\Scheduler\SchedulerInterface;
 use PyServer\Worker\ChildWorker;
 use PyServer\Worker\WorkerInterface;
@@ -50,6 +51,10 @@ class Tcp implements TransportInterface
 
             ChildWorker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
             $this->connections[intval($con)]=$con;
+
+            //todo 测试onConnceted回调
+            Event::dispatch("connect",[$this,$con]);
+
         }
     }
 
