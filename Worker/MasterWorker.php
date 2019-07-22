@@ -398,7 +398,7 @@ USAGE;
             } else {  //工作进程
                 //设置进程名
                 cli_set_process_title("PyServer-worker");
-                $worker=new ChildWorker($this->transport,$this->address,$this->port);
+                $worker=new ChildWorker($this->transport,$this->protocol,$this->address,$this->port);
                 $worker->run();
                 //工作进程异常退出loop
                 die("worker abnormal exit");

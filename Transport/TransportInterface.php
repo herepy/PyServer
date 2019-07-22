@@ -10,7 +10,7 @@ namespace PyServer\Transport;
 
 use PyServer\Worker\WorkerInterface;
 
-interface Transport
+interface TransportInterface
 {
     /**
      * 创建一个传输层工具
@@ -31,10 +31,9 @@ interface Transport
     /**
      * 接受数据
      * @param resource $fd 数据来源
-     * @param int $size 读取大小
      * @return mixed
      */
-    public function read($fd,$size);
+    public function read($fd);
 
     /**
      * 关闭连接

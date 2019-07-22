@@ -61,7 +61,21 @@ class Event implements SchedulerInterface
 
     public function del($fd, $type)
     {
-        // TODO: Implement del() method.
+        switch ($type) {
+            case self::TYPE_READ:
+            case self::TYPE_WRITE:
+                if (!isset($this->event[intval($fd)][$type])) {
+                    return;
+                }
+
+                $this->event[intval($fd)][$type]->del();
+                unset($this->event[intval($fd)][$type]);
+
+                if (empty($this->event[intval($fd)])) {
+                    unset($this->event[intval($fd)]);
+                }
+                break;
+        }
     }
 
     public function dispatch($fd, $type)
@@ -77,6 +91,11 @@ class Event implements SchedulerInterface
     public function loop()
     {
         $this->base->loop();
+    }
+
+    public function getEvent($fd,$type)
+    {
+        return $this->event[intval($fd)][$type];
     }
 
 }
