@@ -9,6 +9,7 @@
 namespace PyServer\Transport;
 
 use PyServer\Scheduler\SchedulerInterface;
+use PyServer\Worker\ChildWorker;
 use PyServer\Worker\WorkerInterface;
 
 class Tcp implements TransportInterface
@@ -28,36 +29,73 @@ class Tcp implements TransportInterface
      */
     protected $maxSize=1024;
 
+    /**
+     * @var array 所有连接fd [intval($fd)=>$fd]
+     */
+    public $connections=[];
+
+
     public function __construct(WorkerInterface $worker, $protocol)
     {
         $this->worker=$worker;
         $this->protocol=$protocol;
     }
 
+    public function accept($socket)
+    {
+        $con=socket_accept($socket);
+        if ($con) {
+            //非阻塞模式
+            socket_set_nonblock($con);
+
+            ChildWorker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
+            $this->connections[intval($con)]=$con;
+        }
+    }
+
     public function send($fd, $content)
     {
-        // TODO: Implement send() method.
+        if (!$content || !is_resource($fd)) {
+            return;
+        }
+
+        //是否有应用层协议，使用协议编码内容
+        if ($this->protocol) {
+            $content=($this->protocol)::encode($content);
+        }
+
+        socket_write($fd,$content,strlen($content));
     }
 
     public function read($fd)
     {
-
         $content=socket_read($fd,$this->maxSize);
-        if (!$content) {  //客户端断开时，content是空
+        if (!$content || !is_resource($fd)) {  //客户端断开时，content是空
             $this->close($fd);
             return;
         }
-        echo "client ".intval($fd)." say:".$content."\n";
+
+        //是否有应用层协议，使用协议解码内容
+        if ($this->protocol) {
+            $contentSize=($this->protocol)::size($content);
+            $content=($this->protocol)::decode($content,$contentSize);
+            //解码数据出错，丢弃
+            if (!$content) {
+                return;
+            }
+        }
+
+        //todo 后续内容处理
+
     }
 
     public function close($fd)
     {
         // TODO: Implement close() method.
-        echo "client:".intval($fd)." disconnect\n";
-        $this->worker->scheduler->del($fd,SchedulerInterface::TYPE_READ);
-        $this->worker->scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
-        unset($this->worker->connections[$fd]);
-//        socket_close($fd);
+        ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
+        ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
+        unset($this->connections[$fd]);
+
     }
 
 }

@@ -21,6 +21,13 @@ interface TransportInterface
     public function __construct(WorkerInterface $worker,$protocol);
 
     /**
+     * 接受客户端连接
+     * @param int $fd 客户端
+     * @return mixed
+     */
+    public function accept($fd);
+
+    /**
      * 发送数据
      * @param resource $fd 接受者
      * @param string $content 发送内容
