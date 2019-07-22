@@ -43,12 +43,19 @@ interface SchedulerInterface
     public function del($fd,$type);
 
     /**
-     * 手动触发事件
-     * @param mixed $fd 标识
-     * @param int $type 类型
+     * 注册手动调用事件
+     * @param string $name 事件名
+     * @param callable $callback 回调函数
      * @return mixed
      */
-    public function dispatch($fd,$type);
+    public static function register($name,$callback);
+
+    /**
+     * 手动触发事件
+     * @param string $name 事件名
+     * @return mixed
+     */
+    public static function dispatch($name);
 
     /**
      * 清空调度器事件

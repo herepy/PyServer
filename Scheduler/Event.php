@@ -32,6 +32,12 @@ class Event implements SchedulerInterface
      */
     protected $event=[];
 
+    /**
+     * @var array 手动调用事件
+     */
+    public static $dispatchEvent=[];
+
+
     public function init()
     {
         if (!extension_loaded("event") || !class_exists("\Event")) {
@@ -78,9 +84,22 @@ class Event implements SchedulerInterface
         }
     }
 
-    public function dispatch($fd, $type)
+    public static function register($name, $callback)
     {
-        // TODO: Implement dispatch() method.
+        if (!is_callable($callback)) {
+            return;
+        }
+        self::$dispatchEvent[$name]=$callback;
+    }
+
+    public static function dispatch($name,$param=[])
+    {
+        $callback=self::$dispatchEvent[$name];
+        if (!$callback || is_callable($callback)) {
+            return;
+        }
+
+        call_user_func_array($callback,$param);
     }
 
     public function clear()
