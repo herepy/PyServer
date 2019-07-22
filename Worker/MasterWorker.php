@@ -118,7 +118,7 @@ class MasterWorker implements WorkerInterface
 
     public function on($event, $callback)
     {
-        // TODO: Implement on() method.
+        Event::register($event,$callback);
     }
 
     /**
