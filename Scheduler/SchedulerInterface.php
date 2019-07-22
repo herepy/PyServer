@@ -11,6 +11,14 @@ namespace PyServer\Scheduler;
 interface SchedulerInterface
 {
     /**
+     * const 事件类型
+     */
+    const TYPE_TIMER=1;
+    const TYPE_SIGNAL=2;
+    const TYPE_READ=3;
+    const TYPE_WRITE=4;
+
+    /**
      * 初始化
      * @return mixed
      */
