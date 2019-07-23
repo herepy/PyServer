@@ -68,7 +68,6 @@ class Tcp implements TransportInterface
         if ($this->protocol) {
             $content=($this->protocol)::encode($content);
         }
-
         socket_write($fd,$content,strlen($content));
     }
 
@@ -100,6 +99,7 @@ class Tcp implements TransportInterface
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[$fd]);
+        @socket_close($fd);
 
         //todo onClose回调
         Event::dispatch("close",[$this,$fd]);
