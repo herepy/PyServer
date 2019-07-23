@@ -33,7 +33,15 @@ class Http implements ProtocolInterface
     public static function encode($content)
     {
         // TODO: Implement encode() method.
-        return "http:".$content;
+        // Default http-code.
+        $header = "HTTP/1.1 200 OK\r\n";
+        $header .= "Content-Type: text/html;charset=utf-8\r\n";
+
+        // header
+        $header .= "Server: PyServer/1.0\r\nContent-Length: " . strlen($content) . "\r\n\r\n";
+
+        // the whole http package
+        return $header . $content;
     }
 
 }
