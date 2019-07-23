@@ -91,7 +91,7 @@ class Tcp implements TransportInterface
         }
 
         //todo onMessage回调
-        Event::dispatch("message",[$this,$fd]);
+        Event::dispatch("message",[$this,$fd,$content]);
 
     }
 
@@ -101,8 +101,8 @@ class Tcp implements TransportInterface
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[$fd]);
 
-        //todo onMessage回调
-        Event::dispatch("message",[$this,$fd]);
+        //todo onClose回调
+        Event::dispatch("close",[$this,$fd]);
     }
 
 }
