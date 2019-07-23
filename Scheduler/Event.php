@@ -94,7 +94,7 @@ class Event implements SchedulerInterface
 
     public static function dispatch($name,$param=[])
     {
-        $callback=self::$dispatchEvent[$name];
+        $callback=isset(self::$dispatchEvent[$name])?self::$dispatchEvent[$name]:false;
         if (!$callback || !is_callable($callback)) {
             return;
         }
