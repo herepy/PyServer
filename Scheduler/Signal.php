@@ -12,7 +12,7 @@ namespace PyServer\Scheduler;
 class Signal implements SchedulerInterface
 {
     /**
-     * @var array 一次性定时事件
+     * @var array 一次性定时事件 [id => [timeStamp=>xxx,callback=>xxx]]
      */
     protected $onceTimer=[];
 
@@ -20,6 +20,11 @@ class Signal implements SchedulerInterface
      * @var array 定期执行事件
      */
     protected $timer=[];
+
+    /**
+     * @var int 全局定时器自增id（是新定时器的id，然后自增一）
+     */
+    public static $timerId;
 
     public function init()
     {
