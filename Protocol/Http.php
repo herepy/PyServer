@@ -113,7 +113,6 @@ class Http implements ProtocolInterface
         self::$header=[];
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
         $_SERVER=[
-            'SERVER_ADDR'           =>  '',
             'SERVER_SOFTWARE'       =>  'PyServer/1.0',
             'SERVER_PROTOCOL'       =>  '',
             'REQUEST_METHOD'        =>  '',
@@ -209,16 +208,19 @@ class Http implements ProtocolInterface
     public static function encode($content)
     {
         // TODO: Implement encode() method.
-        // Default http-code.
-        $header = "HTTP/1.1 ".self::$status." OK\r\n";
-        $header .= "Content-Type: text/html;charset=utf-8\r\n";
+        // Default
+        $header = "HTTP/1.1 ".self::$status." ".self::$codes[self::$status]."\r\n";
         $header .= "Server: PyServer/1.0\r\n";
         $header .= "Content-Length: ".strlen($content)."\r\n";
+
+        if (!array_key_exists("Content-Type",self::$header)) {
+            self::$header["Content-Type"]="text/html;charset=utf-8";
+        }
 
         foreach (self::$header as $key => $value) {
             $header.=$key.": ".$value."\r\n";
         }
-        // the whole http package
+
         return $header."\r\n".$content;
     }
 
