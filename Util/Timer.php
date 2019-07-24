@@ -6,7 +6,11 @@
  * Time: 21:19
  */
 
-namespace PyServer\Scheduler;
+namespace PyServer\Util;
+
+use PyServer\Scheduler\SchedulerInterface;
+use PyServer\Scheduler\Event;
+use PyServer\Scheduler\Signal;
 
 class Timer
 {
