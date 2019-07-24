@@ -140,6 +140,8 @@ class Http implements ProtocolInterface
         //$_REQUEST
         $_REQUEST=array_merge($_GET,$_POST,$_COOKIE);
 
+
+        return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"server"=>$_SERVER];
     }
 
     public static function encode($content)
