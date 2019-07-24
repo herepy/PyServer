@@ -37,6 +37,11 @@ class Event implements SchedulerInterface
      */
     public static $dispatchEvent=[];
 
+    /**
+     * @var int 全局定时器自增id（是新定时器的id，然后自增一）
+     */
+    public static $timerId;
+
 
     public function init()
     {
@@ -47,7 +52,7 @@ class Event implements SchedulerInterface
         if ($this->base) {
             return;
         }
-
+        self::$timerId=1;
         $this->base=new \EventBase();
     }
 
@@ -61,6 +66,18 @@ class Event implements SchedulerInterface
                 $event=new \Event($this->base,$fd,$flag,$callback,$arg);
                 $event->add();
                 $this->event[intval($fd)][$type]=$event;
+                break;
+            case self::TYPE_TIMER:
+            case self::TYPE_ONCE_TIMER:
+                $flag=$type == self::TYPE_TIMER ? (\Event::TIMEOUT | \Event::PERSIST) : \Event::WRITE;
+                $event=new \Event($this->base,-1,$flag,$callback,$arg);
+                $event->addTimer($fd);
+                if ($type == self::TYPE_TIMER) {
+                    $this->onceTimer[self::$timerId]=$event;
+                } else {
+                    $this->timer[self::$timerId]=$event;
+                }
+                self::$timerId++;
                 break;
         }
     }
