@@ -109,6 +109,8 @@ class Http implements ProtocolInterface
 
     public static function decode($buffer)
     {
+        //初始化全局变量
+        self::$header=[];
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
         $_SERVER=[
             'SERVER_ADDR'           =>  '',
@@ -222,7 +224,10 @@ class Http implements ProtocolInterface
 
     public static function setStatus($code)
     {
-
+        if (!array_key_exists($code,self::$codes)) {
+            return;
+        }
+        self::$status=$code;
     }
 
     /**
