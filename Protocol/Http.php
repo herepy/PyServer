@@ -47,7 +47,7 @@ class Http implements ProtocolInterface
         return 0;
     }
 
-    public static function decode($buffer,$size)
+    public static function decode($buffer)
     {
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
         $_SERVER=[
@@ -70,18 +70,27 @@ class Http implements ProtocolInterface
 
         $tmp=explode("\r\n\r\n",$buffer,2);
         $headerArr=explode("\r\n",$tmp[0]);
+        $body=$tmp[1];
 
         //请求首行
         $firstLine=explode(" ",$headerArr[0],3);
         $_SERVER['REQUEST_METHOD']=$firstLine[0];
         $_SERVER['REQUEST_URI']=$firstLine[1];
         $_SERVER['SERVER_PROTOCOL']=$firstLine[2];
-        //queryString
-        $_SERVER["QUERY_STRING"]=strpos($firstLine[1],"?") === false?"":parse_url($firstLine[1],PHP_URL_QUERY);
         unset($headerArr[0]);
 
+        //queryString
+        $_SERVER["QUERY_STRING"]=strpos($firstLine[1],"?") === false?"":parse_url($firstLine[1],PHP_URL_QUERY);
+        //$_GET
+        if ($_SERVER["QUERY_STRING"]) {
+            $getStr=trim($_SERVER["QUERY_STRING"],"?");
+            parse_str($getStr,$_GET);
+        }
+
+        //解析请求头
         foreach ($headerArr as $line) {
             $info=explode(":",$line,2);
+            //$_SERVER
             if ($info[0] == "Host") {
                 $_SERVER["HTTP_HOST"]=trim($info[1]);
             }
@@ -100,7 +109,36 @@ class Http implements ProtocolInterface
             if ($info[0] == "Accept-Charset") {
                 $_SERVER["HTTP_ACCEPT_CHARSET"]=$info[1];
             }
+            if ($info[0] == "Content-Length") {
+                $_SERVER["CONTENT_LENGTH"]=$info[1];
+            }
+            if ($info[0] == "Content-Type") {
+                $_SERVER["CONTENT_TYPE"]=$info[1];
+            }
+
+            //$_COOKIE
+            if ($info[0] == "COOKIE") {
+                $cookieStr=str_replace(";","&",$info[1]);
+                parse_str($cookieStr,$_COOKIE);
+            }
+
         }
+
+        //$_POST
+        if ($_SERVER["REQUEST_METHOD"] == "POST") {
+            if (isset($_SERVER["CONTENT_TYPE"])) {
+                if (strpos($_SERVER["CONTENT_TYPE"],"application/json") !== false) {
+                    $_POST=json_decode($body,true);
+                } else if (strpos($_SERVER["CONTENT_TYPE"],"application/x-www-form-urlencoded") !== false) {
+                    parse_str($body,$_POST);
+                } else if (strpos($_SERVER["CONTENT_TYPE"],"multipart/form-data") !== false) {
+                    //todo 表单文件解析
+                }
+            }
+        }
+
+        //$_REQUEST
+        $_REQUEST=array_merge($_GET,$_POST,$_COOKIE);
 
     }
 
