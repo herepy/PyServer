@@ -36,7 +36,7 @@ class Tcp implements TransportInterface
     public $connections=[];
 
 
-    public function __construct(WorkerInterface $worker, $protocol)
+    public function __construct(WorkerInterface $worker, $protocol=null)
     {
         $this->worker=$worker;
         $this->protocol=$protocol;
@@ -82,11 +82,11 @@ class Tcp implements TransportInterface
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
             $contentSize=($this->protocol)::size($content);
-            $content=($this->protocol)::decode($content,$contentSize);
-            //解码数据出错，丢弃
-            if (!$content) {
+            //数据出错，丢弃
+            if (!$contentSize) {
                 return;
             }
+            $content=($this->protocol)::decode($content);
         }
 
         //todo onMessage回调

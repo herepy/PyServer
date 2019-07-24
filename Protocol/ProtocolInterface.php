@@ -20,10 +20,9 @@ interface ProtocolInterface
     /**
      * 解析内容数据
      * @param string $buffer 要解析的数据
-     * @param int $size 内容真实大小，解析后需对比是否一致
-     * @return mixed 解析后的数据，大小不一致返回false
+     * @return mixed 解析后的数据
      */
-    public static function decode($buffer,$size);
+    public static function decode($buffer);
 
     /**
      * 编码内容

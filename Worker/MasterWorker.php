@@ -106,10 +106,12 @@ class MasterWorker implements WorkerInterface
         } else if ($protocol == "unix") {
             $this->transport="unix";
         } else {
-            if (!class_exists('PyServer\\Protocol\\'.ucfirst($protocol))) {
+            if ($protocol != "tcp" && !class_exists('PyServer\\Protocol\\'.ucfirst($protocol))) {
                 die("protocol is not exist".PHP_EOL);
             }
-            $this->protocol=$protocol;
+            if ($protocol != "tcp") {
+                $this->protocol=$protocol;
+            }
         }
 
         $this->address=$address;
