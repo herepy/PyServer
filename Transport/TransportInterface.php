@@ -45,8 +45,9 @@ interface TransportInterface
     /**
      * 关闭连接
      * @param resource $fd 要断开的客户源
+     * @param string $content 发送的内容
      * @return mixed
      */
-    public function close($fd);
+    public function close($fd,$content=null);
 
 }
