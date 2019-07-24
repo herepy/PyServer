@@ -14,6 +14,8 @@ use PyServer\Scheduler\Signal;
 
 class Timer
 {
+    protected $id;
+
     /**
      * @var SchedulerInterface 调度器实例
      */
@@ -50,8 +52,6 @@ class Timer
         $this->secondes=$seconds;
         $this->callback=$callback;
         $this->persist=$persist;
-
-        return (self::$scheduler)::timerId;
     }
 
     /**
@@ -83,8 +83,21 @@ class Timer
     public function start()
     {
         $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
-        self::$scheduler->add($this->seconds,$type,$this->callback);
+        $timerId=self::$scheduler->add($this->seconds,$type,$this->callback);
+        $this->id=$timerId;
         self::$scheduler->loop();
+    }
+
+    /**
+     * 取消定时器
+     */
+    public function cancel()
+    {
+        if (!$this->id) {
+            return false;
+        }
+        $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
+        return self::$scheduler->del($this->id,$type);
     }
 
 }
