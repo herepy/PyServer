@@ -18,7 +18,7 @@ interface TransportInterface
      * @param WorkerInterface $worker 所属的worker
      * @param string $protocol 使用的协议
      */
-    public function __construct(WorkerInterface $worker,$protocol);
+    public function __construct(WorkerInterface $worker,$protocol=null);
 
     /**
      * 接受客户端连接
