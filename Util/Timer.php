@@ -82,7 +82,9 @@ class Timer
      */
     public function start()
     {
-        //todo
+        $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
+        self::$scheduler->add($this->seconds,$type,$this->callback);
+        self::$scheduler->loop();
     }
 
 }
