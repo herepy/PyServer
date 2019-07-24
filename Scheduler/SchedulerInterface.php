@@ -27,7 +27,7 @@ interface SchedulerInterface
 
     /**
      * 添加调度事件
-     * @param mixed $fd 标识
+     * @param mixed $fd 标识或定时器秒数
      * @param int $type 类型
      * @param callable $callback 回调函数
      * @param array $arg 自定义参数
@@ -37,7 +37,7 @@ interface SchedulerInterface
 
     /**
      * 删除调度事件
-     * @param mixed $fd
+     * @param mixed $fd 连接标识或定时器秒数
      * @param int $type
      * @return mixed
      */

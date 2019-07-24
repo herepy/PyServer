@@ -87,7 +87,7 @@ class Event implements SchedulerInterface
             case self::TYPE_READ:
             case self::TYPE_WRITE:
                 if (!isset($this->event[intval($fd)][$type])) {
-                    return;
+                    return false;
                 }
 
                 $this->event[intval($fd)][$type]->del();
@@ -96,7 +96,23 @@ class Event implements SchedulerInterface
                 if (empty($this->event[intval($fd)])) {
                     unset($this->event[intval($fd)]);
                 }
-                break;
+                return true;
+            case self::TYPE_TIMER:
+                if (!isset($this->timer[$fd])) {
+                    return false;
+                }
+
+                $this->timer[$fd]->del();
+                unset($this->timer[$fd]);
+                return true;
+            case self::TYPE_ONCE_TIMER:
+                if (!isset($this->onceTimer[$fd])) {
+                    return false;
+                }
+
+                $this->onceTimer[$fd]->del();
+                unset($this->onceTimer[$fd]);
+                return true;
         }
     }
 
