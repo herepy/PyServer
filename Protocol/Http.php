@@ -10,8 +10,68 @@ namespace PyServer\Protocol;
 
 class Http implements ProtocolInterface
 {
+    /**
+     * @var int 响应状态码
+     */
+    public static $status=200;
 
-    protected $transport;
+    /**
+     * @var array 响应状态码对应状态信息
+     */
+    public static $codes = array(
+        100 => 'Continue',
+        101 => 'Switching Protocols',
+        200 => 'OK',
+        201 => 'Created',
+        202 => 'Accepted',
+        203 => 'Non-Authoritative Information',
+        204 => 'No Content',
+        205 => 'Reset Content',
+        206 => 'Partial Content',
+        300 => 'Multiple Choices',
+        301 => 'Moved Permanently',
+        302 => 'Found',
+        303 => 'See Other',
+        304 => 'Not Modified',
+        305 => 'Use Proxy',
+        306 => '(Unused)',
+        307 => 'Temporary Redirect',
+        400 => 'Bad Request',
+        401 => 'Unauthorized',
+        402 => 'Payment Required',
+        403 => 'Forbidden',
+        404 => 'Not Found',
+        405 => 'Method Not Allowed',
+        406 => 'Not Acceptable',
+        407 => 'Proxy Authentication Required',
+        408 => 'Request Timeout',
+        409 => 'Conflict',
+        410 => 'Gone',
+        411 => 'Length Required',
+        412 => 'Precondition Failed',
+        413 => 'Request Entity Too Large',
+        414 => 'Request-URI Too Long',
+        415 => 'Unsupported Media Type',
+        416 => 'Requested Range Not Satisfiable',
+        417 => 'Expectation Failed',
+        422 => 'Unprocessable Entity',
+        423 => 'Locked',
+        500 => 'Internal Server Error',
+        501 => 'Not Implemented',
+        502 => 'Bad Gateway',
+        503 => 'Service Unavailable',
+        504 => 'Gateway Timeout',
+        505 => 'HTTP Version Not Supported',
+    );
+
+    /**
+     * @var array 响应头
+     */
+    public static $header=[];
+
+    /**
+     * @var array 接受的请求方法
+     */
     public static $allowMethods=["GET","POST","HEAD","DELETE","OPTIONS","PUT"];
 
     public static function size($buffer)
@@ -148,14 +208,45 @@ class Http implements ProtocolInterface
     {
         // TODO: Implement encode() method.
         // Default http-code.
-        $header = "HTTP/1.1 200 OK\r\n";
+        $header = "HTTP/1.1 ".self::$status." OK\r\n";
         $header .= "Content-Type: text/html;charset=utf-8\r\n";
+        $header .= "Server: PyServer/1.0\r\n";
+        $header .= "Content-Length: ".strlen($content)."\r\n";
 
-        // header
-        $header .= "Server: PyServer/1.0\r\nContent-Length: " . strlen($content) . "\r\n\r\n";
-
+        foreach (self::$header as $key => $value) {
+            $header.=$key.": ".$value."\r\n";
+        }
         // the whole http package
-        return $header . $content;
+        return $header."\r\n".$content;
+    }
+
+    public static function setStatus($code)
+    {
+
+    }
+
+    /**
+     * 设置响应头
+     * @param mixed $key 键值或键值对数组
+     * @param string $value 值
+     * @return bool
+     */
+    public static function setHeader($key,$value="")
+    {
+        if (is_array($key)) {
+            foreach ($key as $k => $val) {
+                self::setHeader($k,$val);
+            }
+            return true;
+        }
+
+        $key=str_replace("_","-",$key);
+        if (is_array($value)) {
+            $value=implode(";",$value);
+        }
+        self::$header[$key]=$value;
+
+        return true;
     }
 
 }
