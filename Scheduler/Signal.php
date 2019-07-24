@@ -26,6 +26,12 @@ class Signal implements SchedulerInterface
      */
     public static $timerId;
 
+    /**
+     * @var bool 是否已经触发loop方法
+     */
+    protected static $loop=false;
+
+
     public function init()
     {
         // TODO: Implement init() method.

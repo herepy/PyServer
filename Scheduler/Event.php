@@ -42,6 +42,10 @@ class Event implements SchedulerInterface
      */
     public static $timerId;
 
+    /**
+     * @var bool 是否已经触发loop方法
+     */
+    protected static $loop=false;
 
     public function init()
     {
@@ -141,6 +145,10 @@ class Event implements SchedulerInterface
 
     public function loop()
     {
+        if (self::$loop) {
+            return;
+        }
+        self::$loop=true;
         $this->base->loop();
     }
 
