@@ -94,8 +94,12 @@ class Tcp implements TransportInterface
 
     }
 
-    public function close($fd)
+    public function close($fd,$content=null)
     {
+        if ($content) {
+            $this->send($fd,$content);
+        }
+
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[$fd]);
