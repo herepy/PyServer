@@ -43,10 +43,10 @@ class Timer
      * @param callable $callback 回调函数
      * @param bool $persist 是否持续化
      */
-    public function __construct($seconds,$callback,$persist=false)
+    public function __construct($seconds,$callback,$persist=false,$scheduler=null)
     {
         if (!self::$scheduler) {
-            $this->init();
+            $this->init($scheduler);
         }
 
         $this->seconds=$seconds;
@@ -57,8 +57,12 @@ class Timer
     /**
      * 初始化调度器
      */
-    protected function init()
+    protected function init($scheduler=null)
     {
+        if ($scheduler instanceof SchedulerInterface) {
+            self::$scheduler=$scheduler;
+            return;
+        }
         if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
             self::$scheduler=new Event();
         } else {
