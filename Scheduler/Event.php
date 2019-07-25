@@ -73,7 +73,7 @@ class Event implements SchedulerInterface
                 return true;
             case self::TYPE_TIMER:
             case self::TYPE_ONCE_TIMER:
-                $flag=$type == self::TYPE_TIMER ? (\Event::TIMEOUT | \Event::PERSIST) : \Event::WRITE;
+                $flag=$type == self::TYPE_TIMER ? (\Event::TIMEOUT | \Event::PERSIST) : \Event::TIMEOUT;
                 $event=new \Event($this->base,-1,$flag,$callback,$arg);
                 $event->addTimer($fd);
                 if ($type == self::TYPE_TIMER) {

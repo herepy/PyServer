@@ -49,7 +49,7 @@ class Timer
             $this->init();
         }
 
-        $this->secondes=$seconds;
+        $this->seconds=$seconds;
         $this->callback=$callback;
         $this->persist=$persist;
     }
@@ -59,7 +59,7 @@ class Timer
      */
     protected function init()
     {
-        if (extension_loaded("\Event") && class_exists("\PyServer\Scheduler\Event")) {
+        if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
             self::$scheduler=new Event();
         } else {
             self::$scheduler=new Signal();
@@ -82,6 +82,7 @@ class Timer
      */
     public function start()
     {
+
         $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
         $timerId=self::$scheduler->add($this->seconds,$type,$this->callback);
         $this->id=$timerId;
