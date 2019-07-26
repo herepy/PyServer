@@ -42,6 +42,7 @@ class Timer
      * @param float $seconds 秒数
      * @param callable $callback 回调函数
      * @param bool $persist 是否持续化
+     * @param SchedulerInterface $scheduler 使用的调度器
      */
     public function __construct($seconds,$callback,$persist=false,$scheduler=null)
     {
@@ -56,9 +57,11 @@ class Timer
 
     /**
      * 初始化调度器
+     * @param SchedulerInterface $scheduler
      */
     protected function init($scheduler=null)
     {
+        self::$scheduler=new Signal();
         if ($scheduler instanceof SchedulerInterface) {
             self::$scheduler=$scheduler;
             return;
