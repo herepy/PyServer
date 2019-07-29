@@ -42,10 +42,10 @@ if (!function_exists("get_scheduler")) {
             }
         }
 
-        $class="PyServer\Scheduler\{$name}";
+        $class='\PyServer\Scheduler\\'.$name;
         if (!class_exists($class)) {
             die("scheduler not found:".$class);
         }
-        return new $class();
+        return $class;
     }
 }
