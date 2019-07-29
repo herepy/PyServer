@@ -30,3 +30,22 @@ if (!function_exists("check_env")) {
     }
 }
 
+if (!function_exists("get_scheduler")) {
+
+    function get_scheduler($name=null)
+    {
+        if (!$name) {
+            if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
+                $name="Event";
+            } else {
+                $name="Signal";
+            }
+        }
+
+        $class="PyServer\Scheduler\{$name}";
+        if (!class_exists($class)) {
+            die("scheduler not found:".$class);
+        }
+        return new $class();
+    }
+}
