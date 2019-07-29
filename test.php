@@ -12,11 +12,17 @@ use PyServer\Worker\MasterWorker;
 
 $worker=new MasterWorker("http://0.0.0.0:8080");
 //$worker->config(["workerCount"=>2]);
-$worker->on('masterStart',function (PyServer\Worker\MasterWorker $worker){
-    $timer=new \PyServer\Util\Timer(3,function (){
-        echo "run timer";
-    },false,$worker::$scheduler);
-    $timer->start();
-    echo "do something";
+$worker->on('workerStart',function (\PyServer\Worker\WorkerInterface $worker){
+    $i=0;
+    $timer=new \PyServer\Util\Timer(3,function ()use(&$i,&$timer){
+        if ($i == 2) {
+            $timer->cancel();
+            return;
+        }
+        echo "timer run,i= {$i} \n";
+        $i++;
+    },true);
+    echo "worker ".$worker->id." started\n";
+
 });
 $worker->run();
