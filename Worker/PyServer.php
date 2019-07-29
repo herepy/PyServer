@@ -308,21 +308,24 @@ USAGE;
     {
         $pid=pcntl_fork();
         if ($pid == -1) {
-            die("fork failed,please try again".PHP_EOL);
+            Log::write('fork failed,please try again');
+            exit(1);
         } else if ($pid > 0) {
             exit(0);
         }
 
         $pid=pcntl_fork();
         if ($pid == -1) {
-            die("fork failed,please try again".PHP_EOL);
+            Log::write('fork failed,please try again');
+            exit(1);
         } else if ($pid > 0) {
             exit(0);
         }
 
         //设置会话组长
         if (posix_setsid() == -1) {
-            die("make the current process a session leader failed".PHP_EOL);
+            Log::write("make the current process a session leader failed");
+            exit(1);
         }
         umask(0);
 
@@ -337,16 +340,14 @@ USAGE;
     protected function monitor()
     {
         while (1) {
-            Log::write("dispatch 1");
             pcntl_signal_dispatch();
             $pid=pcntl_wait($status,WUNTRACED);
             if ($pid > 0) {
                 unset($this->workerPids[$pid]);
                 //todo 记录日志
-                Log::write("worker ".$pid." exited");
+                Log::write("monitoer get worker ".$pid." exited");
             }
             pcntl_signal_dispatch();
-            Log::write("dispatch 2");
         }
     }
 
@@ -357,7 +358,7 @@ USAGE;
     {
         $pid=$this->checkAndGetPid();
         if (!$pid) {
-            die("PyServer is not running\n");
+            die("PyServer is not running".PHP_EOL);
         }
         //向守护进程发送停止信号
         posix_kill($pid,SIGINT);
@@ -365,12 +366,12 @@ USAGE;
         //查看是否关闭成功,最多等待五秒
         for ($i=0;$i<5;$i++) {
             if (posix_kill($pid,0) == false) {
-                die("stop success\n");
+                die("stop success".PHP_EOL);
             }
             $i++;
             sleep(1);
         }
-        die("stop fail\n");
+        die("stop fail".PHP_EOL);
     }
 
     protected function reload()
@@ -415,7 +416,8 @@ USAGE;
         for ($i=0;$i<$needCount;$i++) {
             $pid=pcntl_fork();
             if ($pid == -1) {
-                die("fork worker failed");
+                Log::write("fork worker failed");
+                exit(1);
             } else if ($pid > 0) {  //主进程
                 $this->workerPids[$pid]=$pid;
             } else {  //工作进程
@@ -424,7 +426,8 @@ USAGE;
                 $worker=new Worker($this->transport,$this->protocol,$this->address,$this->port);
                 $worker->run();
                 //工作进程异常退出loop
-                die("worker abnormal exit");
+                Log::write("worker abnormal exit,pid is ".posix_getpid());
+                exit(1);
             }
         }
     }

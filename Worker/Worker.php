@@ -11,6 +11,7 @@ namespace PyServer\Worker;
 
 use PyServer\Scheduler\Event;
 use PyServer\Scheduler\SchedulerInterface;
+use PyServer\Util\Log;
 
 class Worker implements WorkerInterface
 {
@@ -72,7 +73,8 @@ class Worker implements WorkerInterface
         //创建监听socket
         $this->socket=socket_create($domain,$type,$protocol);
         if (!$this->socket) {
-            die("create socket failed");
+            Log::write("create socket failed");
+            exit(1);
         }
 
         //不是unix,设置端口复用

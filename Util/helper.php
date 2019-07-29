@@ -13,19 +13,19 @@ if (!function_exists("check_env")) {
     function check_env()
     {
         if (php_sapi_name() !== "cli") {
-            die("This server must run in cli mode");
+            die("This server must run in cli mode".PHP_EOL);
         }
 
         if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            die("This server can not run in WIN system");
+            die("This server can not run in WIN system".PHP_EOL);
         }
 
         if (!extension_loaded("pcntl")) {
-            die("Pcntl extension is necessary");
+            die("Pcntl extension is necessary".PHP_EOL);
         }
 
         if (!extension_loaded("posix")) {
-            die("Posix extension is necessary");
+            die("Posix extension is necessary".PHP_EOL);
         }
     }
 }
@@ -45,7 +45,8 @@ if (!function_exists("get_scheduler")) {
 
         $class='\PyServer\Scheduler\\'.$name;
         if (!class_exists($class)) {
-            die("scheduler not found:".$class);
+            \PyServer\Util\Log::write("scheduler not found:".$class);
+            exit(1);
         }
         return new $class();
     }
