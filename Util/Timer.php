@@ -89,7 +89,6 @@ class Timer
      */
     public function start()
     {
-
         $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
         $timerId=self::$scheduler->add($this->seconds,$type,$this->callback);
         $this->id=$timerId;
