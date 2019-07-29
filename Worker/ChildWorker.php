@@ -22,7 +22,7 @@ class ChildWorker implements WorkerInterface
     /**
      * @var int 标识id
      */
-    protected $id;
+    public $id;
 
     /**
      * @var \PyServer\Scheduler\SchedulerInterface 调度器实例
