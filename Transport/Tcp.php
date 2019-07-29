@@ -102,7 +102,7 @@ class Tcp implements TransportInterface
 
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
-        unset($this->connections[$fd]);
+        unset($this->connections[intval($fd)]);
 
         //todo onClose回调
         Event::dispatch("close",[$this,$fd]);
