@@ -353,9 +353,6 @@ USAGE;
             $this->deamon();
         }
 
-        //todo onMasterStart回调
-        Event::dispatch("masterStart",[$this]);
-
         //创建工作进程
         $this->forkWorker();
 
