@@ -10,12 +10,17 @@ namespace PyServer\Util;
 
 class Log
 {
-    protected static $file="/var/log/PyServer.log";
+    protected static $file;
 
     public static function write($msg,$level="info")
     {
         $content=date("Y/m/d H:i:s")."  [{$level}] ".$msg.PHP_EOL;
         file_put_contents(self::$file,$content,FILE_APPEND );
+    }
+
+    public static function setFile($filename)
+    {
+        self::$file=$filename;
     }
 
 }

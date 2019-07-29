@@ -50,14 +50,9 @@ class PyServer implements WorkerInterface
     protected $workerPids=[];
 
     /**
-     * @var string 日志目录
-     */
-    protected $logDir;
-
-    /**
      * @var string 日志文件名
      */
-    protected $logFile;
+    protected $logFile="/var/log/PyServer.log";
 
     /**
      * @var string 存放守护进程pid文件
@@ -139,8 +134,7 @@ class PyServer implements WorkerInterface
         }
 
         if (isset($config["logFile"])) {
-            $this->logDir=dirname($config["logFile"]).DIRECTORY_SEPARATOR;
-            $this->logDir=basename($config["logFile"]);
+            $this->logFile=$config["logFile"];
         }
         return true;
     }
@@ -386,6 +380,9 @@ USAGE;
     {
         //设置进程名
         cli_set_process_title("PyServer-Master");
+
+        //设置日志文件
+        Log::setFile($this->logFile);
 
         //是否守护进程模式
         if ($this->deamon) {
