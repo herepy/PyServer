@@ -110,6 +110,7 @@ class Http implements ProtocolInterface
     public static function decode($buffer)
     {
         //初始化全局变量
+        self::$status=200;
         self::$header=[];
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
         $_SERVER=[
@@ -178,7 +179,7 @@ class Http implements ProtocolInterface
             }
 
             //$_COOKIE
-            if ($info[0] == "COOKIE") {
+            if ($info[0] == "Cookie") {
                 $cookieStr=str_replace(";","&",$info[1]);
                 parse_str($cookieStr,$_COOKIE);
             }
