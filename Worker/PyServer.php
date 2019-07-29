@@ -9,6 +9,7 @@
 namespace PyServer\Worker;
 
 use PyServer\Scheduler\Event;
+use PyServer\Util\Log;
 
 class PyServer implements WorkerInterface
 {
@@ -61,7 +62,7 @@ class PyServer implements WorkerInterface
     /**
      * @var string 存放守护进程pid文件
      */
-    protected $pidFile;
+    protected $pidFile="/run/pyserver.pid";
 
     /**
      * 创建一个主进程
@@ -215,9 +216,6 @@ USAGE;
                 $this->start();
                 break;
             case "stop":
-                if (!$this->checkAndGetPid()) {
-                    die("PyServer in not running".PHP_EOL);
-                }
                 $this->stop();
                 break;
             case "status":
@@ -235,24 +233,25 @@ USAGE;
     protected function installSignal()
     {
         //停止
-        pcntl_signal(SIGINT,[$this,"signalHandler"]);
+        pcntl_signal(SIGINT,[$this,"signalHandler"],false);
 
         //重启
-        pcntl_signal(SIGQUIT,[$this,"signalHandler"]);
+        pcntl_signal(SIGQUIT,[$this,"signalHandler"],false);
 
         //状态
-        pcntl_signal(SIGUSR1,[$this,"signalHandler"]);
+        pcntl_signal(SIGUSR1,[$this,"signalHandler"],false);
     }
 
     /**
      * 信号处理器
      * @param int $sinal 接收到的信号
      */
-    protected function signalHandler($sinal)
+    public function signalHandler($sinal)
     {
         switch ($sinal) {
+            //停止
             case SIGINT:
-                //todo
+                $this->doStop();
                 break;
             case SIGQUIT:
                 //todo
@@ -261,6 +260,26 @@ USAGE;
                 //todo
                 break;
         }
+    }
+
+    /**
+     * 守护进程执行停止操作
+     */
+    protected function doStop()
+    {
+        //向所有子进程发送停止信号
+        foreach ($this->workerPids as $pid) {
+            posix_kill($pid,SIGTERM);
+        }
+        //所有子进程退出完毕，自身退出
+        while (count($this->workerPids) != 0) {
+            $pid=pcntl_wait($status,WUNTRACED);
+            if ($pid >0) {
+                unset($this->workerPids[$pid]);
+            }
+        }
+        unlink($this->pidFile);
+        exit(0);
     }
 
     /**
@@ -279,7 +298,7 @@ USAGE;
             unlink($this->pidFile);
             return false;
         }
-        return $pid;
+        return intval($pid);
     }
 
     /**
@@ -309,7 +328,6 @@ USAGE;
 
         //保存主进程pid到文件
         $pid=posix_getpid();
-        $this->pidFile="/run/pyserver.pid";
         file_put_contents($this->pidFile,$pid);
     }
 
@@ -319,20 +337,40 @@ USAGE;
     protected function monitor()
     {
         while (1) {
+            Log::write("dispatch 1");
             pcntl_signal_dispatch();
-            $pid=pcntl_wait($status);
+            $pid=pcntl_wait($status,WUNTRACED);
             if ($pid > 0) {
                 unset($this->workerPids[$pid]);
                 //todo 记录日志
-                echo "worker ".$pid." exited".PHP_EOL;
+                Log::write("worker ".$pid." exited");
             }
             pcntl_signal_dispatch();
+            Log::write("dispatch 2");
         }
     }
 
+    /**
+     * 发送停止操作信号给守护进程
+     */
     protected function stop()
     {
-        //todo
+        $pid=$this->checkAndGetPid();
+        if (!$pid) {
+            die("PyServer is not running\n");
+        }
+        //向守护进程发送停止信号
+        posix_kill($pid,SIGINT);
+
+        //查看是否关闭成功,最多等待五秒
+        for ($i=0;$i<5;$i++) {
+            if (posix_kill($pid,0) == false) {
+                die("stop success\n");
+            }
+            $i++;
+            sleep(1);
+        }
+        die("stop fail\n");
     }
 
     protected function reload()
