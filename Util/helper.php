@@ -46,6 +46,6 @@ if (!function_exists("get_scheduler")) {
         if (!class_exists($class)) {
             die("scheduler not found:".$class);
         }
-        return $class;
+        return new $class();
     }
 }
