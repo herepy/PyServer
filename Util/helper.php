@@ -35,6 +35,7 @@ if (!function_exists("get_scheduler")) {
     function get_scheduler($name=null)
     {
         if (!$name) {
+            //优先使用Event调度器
             if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
                 $name="Event";
             } else {

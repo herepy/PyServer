@@ -10,7 +10,7 @@ namespace PyServer\Transport;
 
 use PyServer\Scheduler\Event;
 use PyServer\Scheduler\SchedulerInterface;
-use PyServer\Worker\ChildWorker;
+use PyServer\Worker\Worker;
 use PyServer\Worker\WorkerInterface;
 
 class Tcp implements TransportInterface
@@ -49,7 +49,7 @@ class Tcp implements TransportInterface
             //非阻塞模式
             socket_set_nonblock($con);
 
-            ChildWorker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
+            Worker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
             $this->connections[intval($con)]=$con;
 
             //todo onConnceted回调
@@ -100,8 +100,8 @@ class Tcp implements TransportInterface
             $this->send($fd,$content);
         }
 
-        ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
-        ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
+        Worker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
+        Worker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[intval($fd)]);
 
         //todo onClose回调

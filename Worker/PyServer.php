@@ -10,7 +10,7 @@ namespace PyServer\Worker;
 
 use PyServer\Scheduler\Event;
 
-class MasterWorker implements WorkerInterface
+class PyServer implements WorkerInterface
 {
 
     /**
@@ -65,7 +65,7 @@ class MasterWorker implements WorkerInterface
 
     /**
      * 创建一个主进程
-     * MasterWorker constructor.
+     * PyServer constructor.
      * @param null $address 监听地址 如："http://0.0.0.0:8080"
      */
     public function __construct($address = null)
@@ -383,7 +383,7 @@ USAGE;
             } else {  //工作进程
                 //设置进程名
                 cli_set_process_title("PyServer-worker");
-                $worker=new ChildWorker($this->transport,$this->protocol,$this->address,$this->port);
+                $worker=new Worker($this->transport,$this->protocol,$this->address,$this->port);
                 $worker->run();
                 //工作进程异常退出loop
                 die("worker abnormal exit");

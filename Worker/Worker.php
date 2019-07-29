@@ -12,7 +12,7 @@ namespace PyServer\Worker;
 use PyServer\Scheduler\Event;
 use PyServer\Scheduler\SchedulerInterface;
 
-class ChildWorker implements WorkerInterface
+class Worker implements WorkerInterface
 {
     /**
      * @var resource 监听socket
@@ -45,8 +45,8 @@ class ChildWorker implements WorkerInterface
         $this->id=spl_object_hash($this);
 
         if (!self::$scheduler) {
-            //todo 目前只有event调度器
-            self::$scheduler=new Event();
+            //获取可用调度器
+            self::$scheduler=get_scheduler();
             self::$scheduler->init();
         }
 

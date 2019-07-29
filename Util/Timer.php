@@ -9,9 +9,7 @@
 namespace PyServer\Util;
 
 use PyServer\Scheduler\SchedulerInterface;
-use PyServer\Scheduler\Event;
-use PyServer\Scheduler\Signal;
-use PyServer\Worker\ChildWorker;
+use PyServer\Worker\Worker;
 
 class Timer
 {
@@ -38,7 +36,7 @@ class Timer
     {
         $this->persist=$persist;
         $type=$persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
-        $timerId=ChildWorker::$scheduler->add($seconds,$type,$callback);
+        $timerId=Worker::$scheduler->add($seconds,$type,$callback);
         $this->id=$timerId;
     }
 
@@ -51,7 +49,7 @@ class Timer
             return false;
         }
         $type=$this->persist?SchedulerInterface::TYPE_TIMER:SchedulerInterface::TYPE_ONCE_TIMER;
-        return ChildWorker::$scheduler->del($this->id,$type);
+        return Worker::$scheduler->del($this->id,$type);
     }
 
 }
