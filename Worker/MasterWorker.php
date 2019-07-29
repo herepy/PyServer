@@ -64,11 +64,6 @@ class MasterWorker implements WorkerInterface
     protected $pidFile;
 
     /**
-     * @var \PyServer\Scheduler\SchedulerInterface 调度器实例
-     */
-    public static $scheduler;
-
-    /**
      * 创建一个主进程
      * MasterWorker constructor.
      * @param null $address 监听地址 如："http://0.0.0.0:8080"
@@ -358,9 +353,6 @@ USAGE;
             $this->deamon();
         }
 
-        //初始化调度器
-        $this->initScheduler();
-
         //todo onMasterStart回调
         Event::dispatch("masterStart",[$this]);
 
@@ -373,16 +365,6 @@ USAGE;
         //监控工作进程
         $this->monitor();
 
-    }
-
-    /**
-     * 初始化调度器
-     */
-    protected function initScheduler()
-    {
-        $scheduler=new Event();
-        $scheduler->init();
-        self::$scheduler=$scheduler;
     }
 
     /**
