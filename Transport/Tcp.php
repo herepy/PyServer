@@ -18,7 +18,7 @@ class Tcp implements TransportInterface
     /**
      * @var WorkerInterface 所属工作进程实例
      */
-    protected $worker;
+    public $worker;
 
     /**
      * @var string 应用层完整名
@@ -103,10 +103,10 @@ class Tcp implements TransportInterface
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         ChildWorker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[$fd]);
-        @socket_close($fd);
 
         //todo onClose回调
         Event::dispatch("close",[$this,$fd]);
+        @socket_close($fd);
     }
 
 }
