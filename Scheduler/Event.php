@@ -33,6 +33,11 @@ class Event implements SchedulerInterface
     protected $event=[];
 
     /**
+     * @var array 信号事件
+     */
+    protected $signal=[];
+
+    /**
      * @var array 手动调用事件
      */
     public static $dispatchEvent=[];
@@ -64,20 +69,32 @@ class Event implements SchedulerInterface
             case self::TYPE_WRITE:
                 $flag=$type == self::TYPE_READ ? (\Event::READ | \Event::PERSIST) : (\Event::WRITE | \Event::PERSIST);
                 $event=new \Event($this->base,$fd,$flag,$callback,$arg);
+
                 $event->add();
                 $this->event[intval($fd)][$type]=$event;
+
                 return true;
+
             case self::TYPE_TIMER:
             case self::TYPE_ONCE_TIMER:
                 $flag=$type == self::TYPE_TIMER ? (\Event::TIMEOUT | \Event::PERSIST) : \Event::TIMEOUT;
                 $event=new \Event($this->base,-1,$flag,$callback,$arg);
                 $event->addTimer($fd);
+
                 if ($type == self::TYPE_ONCE_TIMER) {
                     $this->onceTimer[self::$timerId]=$event;
                 } else {
                     $this->timer[self::$timerId]=$event;
                 }
+
                 return self::$timerId++;
+
+            case self::TYPE_SIGNAL:
+                $event=\Event::signal($this->base,$fd,$callback,$arg);
+                $event->add();
+                $this->signal[$fd]=$event;
+
+                return true;
         }
     }
 
@@ -97,6 +114,7 @@ class Event implements SchedulerInterface
                     unset($this->event[intval($fd)]);
                 }
                 return true;
+
             case self::TYPE_TIMER:
                 if (!isset($this->timer[$fd])) {
                     return false;
@@ -105,6 +123,7 @@ class Event implements SchedulerInterface
                 $this->timer[$fd]->del();
                 unset($this->timer[$fd]);
                 return true;
+
             case self::TYPE_ONCE_TIMER:
                 if (!isset($this->onceTimer[$fd])) {
                     return false;
@@ -151,9 +170,14 @@ class Event implements SchedulerInterface
             $t->del();
         }
 
+        foreach ($this->signal as $event) {
+            $event->del();
+        }
+
         $this->event=[];
         $this->timer=[];
         $this->onceTimer=[];
+        $this->signal=[];
         self::$timerId=1;
     }
 

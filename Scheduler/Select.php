@@ -32,12 +32,17 @@ class Select implements SchedulerInterface
     protected $timer=[];
 
     /**
+     * @var array 信号 [signalA,signalB]
+     */
+    protected $signal=[];
+
+    /**
      * @var int 全局定时器自增id（是新定时器的id，然后自增一）
      */
     public static $timerId;
 
     /**
-     * @var array 手动调用事件
+     * @var array 手动调用事件 [message=>callbackA,start=>callbackB]
      */
     public static $dispatchEvent=[];
 
@@ -59,23 +64,31 @@ class Select implements SchedulerInterface
                     "arg"       =>  $arg,
                     "persist"   =>  $type == self::TYPE_ONCE_TIMER ? false : true
                 ];
+
                 return self::$timerId++;
+
             case self::TYPE_READ:
             case self::TYPE_WRITE:
                 $this->event[intval($fd)][$type]=[
                     "callback"  =>  $callback,
                     "arg"       =>  $arg
                 ];
+
                 if ($type == self::TYPE_READ) {
                     $this->readEvent[intval($fd)]=$fd;
                 } else {
                     $this->writeEvent[intval($fd)]=$fd;
                 }
+
                 return true;
+
             case self::TYPE_SIGNAL:
-                pcntl_signal($fd,function ()use($callback,$fd,$arg){
+                pcntl_signal($fd,function ()use($callback,$fd,$arg)
+                {
                     call_user_func_array($callback,array_merge([$fd,$arg]));
                 },false);
+
+                $this->signal[]=$fd;
                 return true;
         }
 
@@ -87,26 +100,32 @@ class Select implements SchedulerInterface
             case self::TYPE_SIGNAL:
                 pcntl_signal($fd,SIG_IGN);
                 return true;
+
             case self::TYPE_READ:
             case self::TYPE_WRITE:
                 if (!isset($this->event[intval($fd)][$type])) {
                     return false;
                 }
                 unset($this->event[intval($fd)][$type]);
+
                 if (empty($this->event[intval($fd)])) {
                     unset($this->event[intval($fd)]);
                 }
+
                 if ($type == self::TYPE_READ) {
                     unset($this->readEvent[intval($fd)]);
                 } else {
                     unset($this->writeEvent[intval($fd)]);
                 }
+
                 return true;
+
             case self::TYPE_ONCE_TIMER:
             case self::TYPE_TIMER:
                 if (!isset($this->timer)) {
                     return false;
                 }
+
                 unset($this->timer[intval($fd)]);
                 return true;
         }
@@ -132,10 +151,15 @@ class Select implements SchedulerInterface
 
     public function clear()
     {
+        foreach ($this->signal as $signal) {
+            pcntl_signal($signal,SIG_IGN);
+        }
+
         $this->event=[];
         $this->readEvent=[];
         $this->writeEvent=[];
         $this->timer=[];
+        $this->signal=[];
         self::$timerId=1;
     }
 
@@ -191,6 +215,7 @@ class Select implements SchedulerInterface
         foreach ($this->timer as $id => $item) {
             if ($item["timeStamp"] <= $now) {
                 call_user_func_array($item["callback"],$item["arg"]);
+
                 //非持续化定时器，执行后删除
                 if ($item["persist"] === false) {
                     unset($this->timer[$id]);
