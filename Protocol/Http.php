@@ -202,6 +202,8 @@ class Http implements ProtocolInterface
         //$_REQUEST
         $_REQUEST=array_merge($_GET,$_POST,$_COOKIE);
 
+        //todo $_SESSION的实现
+
 
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"server"=>$_SERVER];
     }
