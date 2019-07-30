@@ -39,7 +39,7 @@ if (!function_exists("get_scheduler")) {
             if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
                 $name="Event";
             } else {
-                $name="Signal";
+                $name="Select";
             }
         }
 
