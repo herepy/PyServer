@@ -12,10 +12,7 @@ use PyServer\Worker\PyServer;
 
 $worker=new PyServer("http://0.0.0.0:8080");
 //$worker->config(["deamon"=>true,"workerCount"=>2]);
-$worker->on('workerStart',function ($worker){
-    $wid=$worker->id;
-    $timer=new \PyServer\Util\Timer(3,function()use($wid){
-        echo time()." in timer:worker id is ".$wid."\n";
-    });
+$worker->on('message',function ($connection,$fd,$content){
+    $connection->close($fd,json_encode($content));
 });
 $worker->run();

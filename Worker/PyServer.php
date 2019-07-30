@@ -272,7 +272,9 @@ USAGE;
                 unset($this->workerPids[$pid]);
             }
         }
-        unlink($this->pidFile);
+        if ($this->deamon) {
+            unlink($this->pidFile);
+        }
         exit(0);
     }
 
