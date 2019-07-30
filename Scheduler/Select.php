@@ -120,12 +120,20 @@ class Select implements SchedulerInterface
 
     public static function register($name, $callback)
     {
-        // TODO: Implement register() method.
+        if (!is_callable($callback)) {
+            return;
+        }
+        self::$dispatchEvent[$name]=$callback;
     }
 
-    public static function dispatch($name)
+    public static function dispatch($name,$param=[])
     {
-        // TODO: Implement dispatch() method.
+        $callback=isset(self::$dispatchEvent[$name])?self::$dispatchEvent[$name]:false;
+        if (!$callback || !is_callable($callback)) {
+            return;
+        }
+
+        call_user_func_array($callback,$param);
     }
 
     public function clear()
