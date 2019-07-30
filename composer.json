@@ -1,6 +1,7 @@
 {
-    "name": "pengyu/min-server",
+    "name": "pengyu/PyServer",
     "description": "a compact network communication server wirtten by php",
+    "keywords":["framework","network","server","event","timer","tcp","websocket"],
     "type": "library",
     "require": {
         "php": ">= 7.0.0"
