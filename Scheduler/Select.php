@@ -76,9 +76,9 @@ class Select implements SchedulerInterface
                     "arg"       =>  $arg
                 ];
                 if ($type == self::TYPE_READ) {
-                    $this->readEvent[]=$fd;
+                    $this->readEvent[intval($fd)]=$fd;
                 } else {
-                    $this->writeEvent[]=$fd;
+                    $this->writeEvent[intval($fd)]=$fd;
                 }
                 return true;
             case self::TYPE_SIGNAL:
@@ -151,18 +151,23 @@ class Select implements SchedulerInterface
         }
 
         self::$loop=true;
+
         while (true) {
+            //触发信号处理
+            pcntl_signal_dispatch();
+
             $read=$this->readEvent;
             $write=$this->writeEvent;
             $except=[];
-
             //定时器事件执行
             $this->dealTimer();
 
             //没有可读写事件产生
+            set_error_handler(function (){});
             if (socket_select($read,$write,$except,1) == 0) {
                 continue;
             }
+            set_error_handler(null);
 
             //有可读事件产生
             if ($read) {
@@ -179,6 +184,9 @@ class Select implements SchedulerInterface
                     call_user_func_array($info["callback"],array_merge([$wfd],$info["arg"]));
                 }
             }
+
+            //触发信号处理
+            pcntl_signal_dispatch();
         }
 
     }
