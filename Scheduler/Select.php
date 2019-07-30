@@ -12,7 +12,7 @@ namespace PyServer\Scheduler;
 class Select implements SchedulerInterface
 {
     /**
-     * @var array 所有可读写事件 [intval(fd) =>[callback=>xxx,arg=>xxx]]
+     * @var array 所有可读写事件 [intval(fd) =>[type=>[callback=>xxx,arg=>xxx]]]
      */
     protected $event=[];
 
@@ -71,7 +71,7 @@ class Select implements SchedulerInterface
                 return self::$timerId++;
             case self::TYPE_READ:
             case self::TYPE_WRITE:
-                $this->event[intval($fd)]=[
+                $this->event[intval($fd)][$type]=[
                     "callback"  =>  $callback,
                     "arg"       =>  $arg
                 ];
@@ -98,10 +98,13 @@ class Select implements SchedulerInterface
                 return true;
             case self::TYPE_READ:
             case self::TYPE_WRITE:
-                if (!isset($this->event[intval($fd)])) {
+                if (!isset($this->event[intval($fd)][$type])) {
                     return false;
                 }
-                unset($this->event[intval($fd)]);
+                unset($this->event[intval($fd)][$type]);
+                if (empty($this->event[intval($fd)])) {
+                    unset($this->event[intval($fd)]);
+                }
                 if ($type == self::TYPE_READ) {
                     unset($this->readEvent[intval($fd)]);
                 } else {
@@ -147,24 +150,43 @@ class Select implements SchedulerInterface
             return;
         }
 
+        self::$loop=true;
         while (true) {
-            pcntl_signal_dispatch();
-            //没有定时器，停止
-            if (empty($this->timer)) {
-                pcntl_alarm(0);
-                self::$loop=false;
-                return;
+            $read=$this->readEvent;
+            $write=$this->writeEvent;
+            $except=[];
+
+            //定时器事件执行
+            $this->dealTimer();
+
+            //没有可读写事件产生
+            if (socket_select($read,$write,$except,1) == 0) {
+                continue;
             }
-            sleep(20);
+
+            //有可读事件产生
+            if ($read) {
+                foreach ($read as $rfd) {
+                    $info=$this->event[intval($rfd)][self::TYPE_READ];
+                    call_user_func_array($info["callback"],array_merge([$rfd],$info["arg"]));
+                }
+            }
+
+            //有可写事件产生
+            if ($write) {
+                foreach ($write as $wfd) {
+                    $info=$this->event[intval($wfd)][self::TYPE_WRITE];
+                    call_user_func_array($info["callback"],array_merge([$wfd],$info["arg"]));
+                }
+            }
         }
 
     }
 
-    public function deal()
+    public function dealTimer()
     {
-        //没有定时器，停止
+        //没有定时器
         if (empty($this->timer)) {
-            pcntl_alarm(0);
             return;
         }
 
@@ -178,8 +200,6 @@ class Select implements SchedulerInterface
                 }
             }
         }
-
-        pcntl_alarm(1);
     }
 
 }
