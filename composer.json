@@ -1,5 +1,5 @@
 {
-    "name": "pengyu/PyServer",
+    "name": "pengyu/py-server",
     "description": "a compact network communication server wirtten by php",
     "keywords":["framework","network","server","event","timer","tcp","websocket"],
     "type": "library",
