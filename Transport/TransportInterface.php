@@ -50,4 +50,10 @@ interface TransportInterface
      */
     public function close($fd,$content=null);
 
+    /**
+     * 停止接受新的连接，处理关闭现有连接
+     * @return mixed
+     */
+    public function stop();
+
 }

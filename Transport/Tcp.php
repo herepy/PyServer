@@ -52,7 +52,7 @@ class Tcp implements TransportInterface
             Worker::$scheduler->add($con,SchedulerInterface::TYPE_READ,[$this,"read"]);
             $this->connections[intval($con)]=$con;
 
-            //todo onConnceted回调
+            //onConnceted回调
             Event::dispatch("connect",[$this,$con]);
 
         }
@@ -89,7 +89,7 @@ class Tcp implements TransportInterface
             $content=($this->protocol)::decode($content);
         }
 
-        //todo onMessage回调
+        //onMessage回调
         Event::dispatch("message",[$this,$fd,$content]);
 
     }
@@ -104,9 +104,17 @@ class Tcp implements TransportInterface
         Worker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[intval($fd)]);
 
-        //todo onClose回调
+        //onClose回调
         Event::dispatch("close",[$this,$fd]);
         @socket_close($fd);
+    }
+
+    public function stop()
+    {
+        foreach ($this->connections as $fd) {
+            $this->close($fd);
+        }
+        $this->connections=[];
     }
 
 }
