@@ -8,7 +8,6 @@
 
 namespace PyServer\Scheduler;
 
-use PyServer\Exception\ExtensionNotLoadException;
 use PyServer\Util\Log;
 
 class Event implements SchedulerInterface
