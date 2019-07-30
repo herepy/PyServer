@@ -34,27 +34,17 @@ class Select implements SchedulerInterface
     /**
      * @var int 全局定时器自增id（是新定时器的id，然后自增一）
      */
-    public static $timerId=0;
+    public static $timerId;
 
     /**
      * @var array 手动调用事件
      */
     public static $dispatchEvent=[];
 
-    /**
-     * @var bool 是否已经触发loop方法
-     */
-    protected static $loop=false;
-
 
     public function init()
     {
-        $this->event=[];
-        $this->readEvent=[];
-        $this->writeEvent=[];
-        $this->timer=[];
-        self::$timerId=0;
-//        self::$dispatchEvent=[];
+        $this->clear();
     }
 
     public function add($fd, $type, $callback, $arg = [])
@@ -142,17 +132,15 @@ class Select implements SchedulerInterface
 
     public function clear()
     {
-        // TODO: Implement clear() method.
+        $this->event=[];
+        $this->readEvent=[];
+        $this->writeEvent=[];
+        $this->timer=[];
+        self::$timerId=1;
     }
 
     public function loop()
     {
-        if (self::$loop) {
-            return;
-        }
-
-        self::$loop=true;
-
         while (true) {
             //触发信号处理
             pcntl_signal_dispatch();

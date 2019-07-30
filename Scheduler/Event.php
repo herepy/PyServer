@@ -40,12 +40,7 @@ class Event implements SchedulerInterface
     /**
      * @var int 全局定时器自增id（是新定时器的id，然后自增一）
      */
-    public static $timerId=0;
-
-    /**
-     * @var bool 是否已经触发loop方法
-     */
-    protected static $loop=false;
+    public static $timerId;
 
     public function init()
     {
@@ -145,10 +140,6 @@ class Event implements SchedulerInterface
 
     public function loop()
     {
-        if (self::$loop) {
-            return;
-        }
-        self::$loop=true;
         $this->base->loop();
     }
 
