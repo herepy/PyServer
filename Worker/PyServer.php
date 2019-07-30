@@ -263,7 +263,7 @@ USAGE;
     {
         //向所有子进程发送停止信号
         foreach ($this->workerPids as $pid) {
-            posix_kill($pid,SIGTERM);
+            posix_kill($pid,SIGINT);
         }
         //所有子进程退出完毕，自身退出
         while (count($this->workerPids) != 0) {

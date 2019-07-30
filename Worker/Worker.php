@@ -51,7 +51,24 @@ class Worker implements WorkerInterface
             self::$scheduler->init();
         }
 
+        $this->installSignal();
         $this->listen($transport,$protocol,$address,$port);
+    }
+
+    protected function installSignal()
+    {
+        Log::write("in worker install signal");
+        //安装停止信号
+        self::$scheduler->add(SIGINT,SchedulerInterface::TYPE_SIGNAL,[$this,"stop"]);
+    }
+
+    public function stop()
+    {
+        Log::write("in worker stop");
+        $this->transport->stop();
+        self::$scheduler->clear();
+        @socket_close($this->socket);
+        exit(0);
     }
 
     public function listen($transport,$protocol,$address,$port)
@@ -99,7 +116,7 @@ class Worker implements WorkerInterface
 
     public function run()
     {
-        //todo onWorkerStart回调
+        //onWorkerStart回调
         Event::dispatch("workerStart",[$this]);
 
         //监听新连接
