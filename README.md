@@ -29,7 +29,7 @@ cd PyServer && composer install
 
 ##### composer方式安装
 ```shell
-composer require pengyu/min-server
+composer require pengyu/py-server
 ```
 
 ## 示例
