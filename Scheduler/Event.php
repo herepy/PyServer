@@ -52,8 +52,8 @@ class Event implements SchedulerInterface
         if ($this->base) {
             return;
         }
-        self::$timerId=1;
         $this->base=new \EventBase();
+        $this->clear();
     }
 
     public function add($fd, $type, $callback, $arg=[])
@@ -135,7 +135,26 @@ class Event implements SchedulerInterface
 
     public function clear()
     {
-        // TODO: Implement clear() method.
+        foreach ($this->event as $e) {
+            if (isset($e[self::TYPE_READ])) {
+                $e[self::TYPE_READ]->del();
+            } else if (isset($e[self::TYPE_WRITE])) {
+                $e[self::TYPE_WRITE]->del();
+            }
+        }
+
+        foreach ($this->timer as $timer) {
+            $timer->del();
+        }
+
+        foreach ($this->onceTimer as $t) {
+            $t->del();
+        }
+
+        $this->event=[];
+        $this->timer=[];
+        $this->onceTimer=[];
+        self::$timerId=1;
     }
 
     public function loop()
