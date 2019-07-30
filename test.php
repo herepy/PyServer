@@ -12,8 +12,10 @@ use PyServer\Worker\PyServer;
 
 $worker=new PyServer("http://0.0.0.0:8080");
 //$worker->config(["deamon"=>true,"workerCount"=>2]);
-$worker->on('message',function (\PyServer\Transport\TransportInterface $connection,$fd,$content){
-    echo "on message\n";
-    $connection->send($fd,json_encode($content));
+$worker->on('workerStart',function ($worker){
+    $wid=$worker->id;
+    $timer=new \PyServer\Util\Timer(3,function()use($wid){
+        echo time()." in timer:worker id is ".$wid."\n";
+    });
 });
 $worker->run();

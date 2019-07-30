@@ -27,7 +27,7 @@ class Select implements SchedulerInterface
     protected $writeEvent=[];
 
     /**
-     * @var array 定期执行事件 [timerId => [timeStamp=>xxx,callback=>xxx,arg=>xxx,persist=>false|true]]
+     * @var array 定期执行事件 [timerId => [timeout=>xx,timeStamp=>xxx,callback=>xxx,arg=>xxx,persist=>false|true]]
      */
     protected $timer=[];
 
@@ -63,6 +63,7 @@ class Select implements SchedulerInterface
             case self::TYPE_ONCE_TIMER:
             case self::TYPE_TIMER:
                 $this->timer[self::$timerId]=[
+                    "timeout"   =>  intval($fd),
                     "timeStamp" =>  time()+intval($fd),
                     "callback"  =>  $callback,
                     "arg"       =>  $arg,
@@ -205,6 +206,14 @@ class Select implements SchedulerInterface
                 //非持续化定时器，执行后删除
                 if ($item["persist"] === false) {
                     unset($this->timer[$id]);
+                } else {
+                    $this->timer[$id]=[
+                        "timeout"   =>  $item["timeout"],
+                        "timeStamp" =>  $now+$item["timeout"],
+                        "callback"  =>  $item["callback"],
+                        "arg"       =>  $item["arg"],
+                        "persist"   =>  true
+                    ];
                 }
             }
         }
