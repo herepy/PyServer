@@ -19,6 +19,19 @@
 - 可作为传统Web服务器
 - 可作为WebSocket服务器(待实现)
 
+## 安装
+
+##### git方式安装
+```shell
+git clone https://github.com/herepy/PyServer.git
+cd PyServer && composer install
+```
+
+##### composer方式安装
+```shell
+composer require pengyu/min-server
+```
+
 ## 示例
 
 ##### 配置
