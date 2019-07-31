@@ -212,14 +212,13 @@ class Http implements ProtocolInterface
             $sessionId=null;
         }
         $session->start($sessionId);
+
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session];
     }
 
     public static function encode($content)
     {
-        // TODO: Implement encode() method.
-        // Default
         $header = "HTTP/1.1 ".self::$status." ".self::$codes[self::$status]."\r\n";
         $header .= "Server: PyServer/1.0\r\n";
         $header .= "Content-Length: ".strlen($content)."\r\n";
@@ -228,9 +227,19 @@ class Http implements ProtocolInterface
             self::$header["Content-Type"]="text/html;charset=utf-8";
         }
 
+        //常规header
         foreach (self::$header as $key => $value) {
             $header.=$key.": ".$value."\r\n";
         }
+
+        //cookie
+        foreach ($_COOKIE as $key => $value) {
+            $header.="Set-Cookie: ".$key."=".$value.";Path=".ini_get('session.cookie_path').
+                ";Domain=".ini_get('session.cookie_domain').";Max-Age=".ini_get('session.cookie_lifetime').
+                ";HttpOnly;Secure";
+        }
+
+        //todo保存session  session->close()
 
         return $header."\r\n".$content;
     }
