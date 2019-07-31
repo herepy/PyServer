@@ -135,6 +135,7 @@ class Session
         self::$handler->write($this->id,$data);
         self::$handler->close();
         $_SESSION=[];
+        $_COOKIE[$this->name]=$this->id;
     }
 
     /**
