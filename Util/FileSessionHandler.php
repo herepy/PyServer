@@ -10,7 +10,7 @@ namespace PyServer\Util;
 
 class FileSessionHandler implements \SessionHandlerInterface
 {
-    protected $dir;
+    public $dir;
 
     public function __construct($dir)
     {
