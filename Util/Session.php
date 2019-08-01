@@ -8,6 +8,8 @@
 
 namespace PyServer\Util;
 
+use PyServer\Protocol\Http;
+
 class Session
 {
     /**
@@ -70,7 +72,7 @@ class Session
         } else if (isset($_COOKIE[$this->name])) {  //cookie中读取sessionId
             $this->id=$_COOKIE[$this->name];
         } else {  //生成sessionId
-            $this->id=$this->createId($this->name);
+            $this->id=$this->createId();
         }
 
         $data=self::$handler->read($this->id);
@@ -113,7 +115,7 @@ class Session
     public function createId($prefix="")
     {
         $lib="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        $length=10;
+        $length=16;
         do{
             $str="";
             while ($length>0) {
@@ -131,8 +133,7 @@ class Session
      */
     public function close()
     {
-        $data=serialize($_SESSION);
-        self::$handler->write($this->id,$data);
+        self::$handler->write($this->id,$_SESSION);
         self::$handler->close();
         $_SESSION=[];
         $_COOKIE[$this->name]=$this->id;

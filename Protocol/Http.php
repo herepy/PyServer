@@ -72,6 +72,11 @@ class Http implements ProtocolInterface
     public static $header=[];
 
     /**
+     * @var array 响应COOKIE
+     */
+    public static $cookie=[];
+
+    /**
      * @var array 接受的请求方法
      */
     public static $allowMethods=["GET","POST","HEAD","DELETE","OPTIONS","PUT"];
@@ -114,6 +119,7 @@ class Http implements ProtocolInterface
         //初始化全局变量
         self::$status=200;
         self::$header=[];
+        self::$cookie=[];
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
         $_SERVER=[
             'SERVER_SOFTWARE'       =>  'PyServer/1.0',
@@ -213,6 +219,12 @@ class Http implements ProtocolInterface
         }
         $session->start($sessionId);
 
+        //没有传入sessionId,$session->start生成了新的sessionId,需要传给前端保存
+        if (!$sessionId && !isset($_COOKIE["PYSESSION"])) {
+            //todo cookie有效期待定
+            Http::setCookie("PYSESSION",$session->id,300);
+        }
+
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session];
     }
@@ -233,10 +245,8 @@ class Http implements ProtocolInterface
         }
 
         //cookie
-        foreach ($_COOKIE as $key => $value) {
-            $header.="Set-Cookie: ".$key."=".$value.";Path=".ini_get('session.cookie_path').
-                ";Domain=".ini_get('session.cookie_domain').";Max-Age=".ini_get('session.cookie_lifetime').
-                ";HttpOnly;Secure";
+        foreach (self::$cookie as $key => $value) {
+            $header.="Set-Cookie: ".$key."=".$value."\r\n";
         }
 
         return $header."\r\n".$content;
@@ -248,6 +258,20 @@ class Http implements ProtocolInterface
             return;
         }
         self::$status=$code;
+    }
+
+    public static function setCookie($key,$value,$expire="",$domain="",$path="",$httpOnly=false,$secure=false)
+    {
+        $expire=$expire?$expire:ini_get('session.cookie_lifetime');
+        $domain=$domain?$domain:ini_get('session.cookie_domain');
+        $path=$path?$path:ini_get('session.cookie_path');
+
+        $httpOnly=$httpOnly?";HttpOnly":"";
+        $secure=$secure?";secure":"";
+
+        $option=";Path=".$path.";Domain=".$domain.";Max-Age=".$expire.$httpOnly.$secure;
+
+        self::$cookie[$key]=$value.$option;
     }
 
     /**
@@ -265,7 +289,7 @@ class Http implements ProtocolInterface
             return true;
         }
 
-        $key=str_replace("_","-",$key);
+//        $key=str_replace("_","-",$key);
         if (is_array($value)) {
             $value=implode(";",$value);
         }
