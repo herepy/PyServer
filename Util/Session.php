@@ -60,10 +60,10 @@ class Session
             return;
         }
 
+        self::$handler->open($this->dir,$this->name);
+
         //session清理 todo 时间待定
         self::$handler->gc(1440);
-
-        self::$handler->open($this->dir,$this->name);
 
         if ($sessionId) {  //手动传入sessionId
             $this->id=$sessionId;
