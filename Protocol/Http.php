@@ -81,6 +81,11 @@ class Http implements ProtocolInterface
      */
     public static $allowMethods=["GET","POST","HEAD","DELETE","OPTIONS","PUT"];
 
+    /**
+     * 请求数据的大小
+     * @param string $buffer 客户端请求数据
+     * @return int
+     */
     public static function size($buffer)
     {
         //验证格式
@@ -114,6 +119,11 @@ class Http implements ProtocolInterface
         return 0;
     }
 
+    /**
+     * 解码请求数据
+     * @param string $buffer 客户端请求数据
+     * @return array 解码后的相关数据
+     */
     public static function decode($buffer)
     {
         //初始化全局变量
@@ -229,6 +239,11 @@ class Http implements ProtocolInterface
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session];
     }
 
+    /**
+     * 编码发送的数据
+     * @param string $content 数据内容
+     * @return string
+     */
     public static function encode($content)
     {
         $header = "HTTP/1.1 ".self::$status." ".self::$codes[self::$status]."\r\n";
@@ -252,6 +267,10 @@ class Http implements ProtocolInterface
         return $header."\r\n".$content;
     }
 
+    /**
+     * 设置响应状态码
+     * @param int $code
+     */
     public static function setStatus($code)
     {
         if (!array_key_exists($code,self::$codes)) {
@@ -260,6 +279,16 @@ class Http implements ProtocolInterface
         self::$status=$code;
     }
 
+    /**
+     * 设置响应头cookie
+     * @param string $key 键
+     * @param string $value 值
+     * @param string $expire 有效期时长
+     * @param string $domain 域名
+     * @param string $path 路径
+     * @param bool $httpOnly 是否仅传输
+     * @param bool $secure 是否仅在ssl下使用
+     */
     public static function setCookie($key,$value,$expire="",$domain="",$path="",$httpOnly=false,$secure=false)
     {
         $expire=$expire?$expire:ini_get('session.cookie_lifetime');
@@ -289,7 +318,6 @@ class Http implements ProtocolInterface
             return true;
         }
 
-//        $key=str_replace("_","-",$key);
         if (is_array($value)) {
             $value=implode(";",$value);
         }
