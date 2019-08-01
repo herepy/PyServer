@@ -147,5 +147,13 @@ class Session
         return self::$handler->destroy($this->id);
     }
 
+    /**
+     * 析构函数，自动收尾处理
+     */
+    public function __destruct()
+    {
+        $this->close();
+    }
+
 
 }

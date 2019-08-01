@@ -239,8 +239,6 @@ class Http implements ProtocolInterface
                 ";HttpOnly;Secure";
         }
 
-        //todo保存session  session->close()
-
         return $header."\r\n".$content;
     }
 
