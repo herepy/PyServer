@@ -28,12 +28,17 @@ class Tcp implements TransportInterface
     /**
      * @var int 缓冲区大小
      */
-    protected $maxSize=1024;
+    protected $maxSize=10240;
 
     /**
      * @var array 所有连接fd [intval($fd)=>$fd]
      */
     public $connections=[];
+
+    /**
+     * @var string 连接当前已接受到的数据 [intval($fd)=>[size=>xxx,buffer=>xxx]]
+     */
+    protected $buffer=[];
 
 
     public function __construct(WorkerInterface $worker, $protocol=null)
@@ -54,7 +59,7 @@ class Tcp implements TransportInterface
 
             //onConnceted回调
             Event::dispatch("connect",[$this,$con]);
-
+            var_dump($this->connections);
         }
     }
 
@@ -82,11 +87,33 @@ class Tcp implements TransportInterface
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
             $contentSize=($this->protocol)::size($content);
-            //数据出错，丢弃
-            if (!$contentSize) {
-                return;
+
+            if ($contentSize) {
+                $this->buffer[intval($fd)]=["size"=>$contentSize,"buffer"=>$content];
+
+                //只接受了一部分数据，等待下一次的读取
+                if (!strlen($content) < $contentSize) {
+                    return;
+                }
+
+                $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
+            } else { //数据的一部分或者
+                $this->buffer[intval($fd)]["buffer"].=$content;
+
+                //只接受了一部分数据，等待下一次的读取
+                if (strlen($this->buffer[intval($fd)]["buffer"]) < $this->buffer[intval($fd)]["size"]) {
+                    return;
+                }
+
+                $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
             }
+
+            set_error_handler(function (){});
             $content=($this->protocol)::decode($content);
+            set_error_handler(null);
+
+            //清空本次接收数据
+            $this->buffer[intval($fd)]=["size"=>0,"buffer"=>""];
         }
 
         //onMessage回调
@@ -103,6 +130,7 @@ class Tcp implements TransportInterface
         Worker::$scheduler->del($fd,SchedulerInterface::TYPE_READ);
         Worker::$scheduler->del($fd,SchedulerInterface::TYPE_WRITE);
         unset($this->connections[intval($fd)]);
+        unset($this->buffer[intval($fd)]);
 
         //onClose回调
         Event::dispatch("close",[$this,$fd]);
@@ -115,6 +143,7 @@ class Tcp implements TransportInterface
             $this->close($fd);
         }
         $this->connections=[];
+        $this->buffer=[];
     }
 
 }
