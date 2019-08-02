@@ -146,6 +146,7 @@ class Http implements ProtocolInterface
             'HTTP_HOST'             =>  '',
             'HTTP_REFERER'          =>  '',
             'HTTP_USER_AGENT'       =>  '',
+            'PHP_SELF'              =>  ''
         ];
 
         $tmp=explode("\r\n\r\n",$buffer,2);
@@ -161,6 +162,10 @@ class Http implements ProtocolInterface
 
         //queryString
         $_SERVER["QUERY_STRING"]=strpos($firstLine[1],"?") === false?"":parse_url($firstLine[1],PHP_URL_QUERY);
+
+        //PHP_SELF
+        $_SERVER["PHP_SELF"]=str_replace("?".$_SERVER["QUERY_STRING"],"",$_SERVER['REQUEST_URI']);
+
         //$_GET
         if ($_SERVER["QUERY_STRING"]) {
             $getStr=trim($_SERVER["QUERY_STRING"],"?");
