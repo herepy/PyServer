@@ -335,6 +335,11 @@ class Http implements ProtocolInterface
         return true;
     }
 
+    /**
+     * 解析multipart/form-data数据到全局变量$_POST/$_FILES
+     * @param $body
+     * @param $boundary
+     */
     protected static function getFromData($body,$boundary)
     {
 
