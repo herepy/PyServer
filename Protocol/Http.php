@@ -130,7 +130,7 @@ class Http implements ProtocolInterface
         self::$status=200;
         self::$header=[];
         self::$cookie=[];
-        $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=array();
+        $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=$_FILES=array();
         $_SERVER=[
             'SERVER_SOFTWARE'       =>  'PyServer/1.0',
             'SERVER_PROTOCOL'       =>  '',
@@ -218,6 +218,10 @@ class Http implements ProtocolInterface
                     parse_str($body,$_POST);
                 } else if (strpos($_SERVER["CONTENT_TYPE"],"multipart/form-data") !== false) {
                     //todo 表单文件解析
+                    if (preg_match("/boundary=(.+)$/",$_SERVER["CONTENT_TYPE"],$matches)) {
+                        $boundary=$matches[1];
+                        self::getFromData($body,$boundary);
+                    }
                 }
             }
         }
@@ -240,7 +244,7 @@ class Http implements ProtocolInterface
             Http::setCookie("PYSESSION",$session->id,300);
         }
 
-        return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,
+        return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session];
     }
 
@@ -329,6 +333,41 @@ class Http implements ProtocolInterface
         self::$header[$key]=$value;
 
         return true;
+    }
+
+    protected static function getFromData($body,$boundary)
+    {
+
+        $body=str_replace("--".$boundary."--","",$body);
+        $formData=explode("--".$boundary."\r\n",$body);
+
+        if ($formData[0] === "") {
+            unset($formData[0]);
+        }
+
+        foreach ($formData as $item) {
+            $itemInfo=explode("\r\n\r\n",$item,2);
+            $itemValue=substr($itemInfo[1],0,-2);
+            if (strpos($itemInfo[0],"filename") === false) {
+                preg_match('/Content-Disposition: form-data; name="(.+)"/',$itemInfo[0],$matches);
+            } else {
+                preg_match_all('/Content-Disposition: form-data; name="(.+)"; filename="(.+)"\\r\\nContent-Type: (.+)/',$itemInfo[0],$matches);
+            }
+
+            if (count($matches) == 2) {
+                $_POST[$matches[1][0]]=$itemValue;
+            } else {  //文件
+                $tmpFile="./runtime/upload/".$matches[2][0];
+                file_put_contents($tmpFile,$itemValue);
+                $_FILES[$matches[1][0]]=[
+                    "name"      =>  $matches[2][0],
+                    "type"      =>  $matches[3][0],
+                    "tmp_name"  =>  $tmpFile,
+                    "error"     =>  0,
+                    "size"      =>  strlen($itemValue)
+                ];
+            }
+        }
     }
 
 }
