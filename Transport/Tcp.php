@@ -59,7 +59,6 @@ class Tcp implements TransportInterface
 
             //onConnceted回调
             Event::dispatch("connect",[$this,$con]);
-            var_dump($this->connections);
         }
     }
 
@@ -92,10 +91,9 @@ class Tcp implements TransportInterface
                 $this->buffer[intval($fd)]=["size"=>$contentSize,"buffer"=>$content];
 
                 //只接受了一部分数据，等待下一次的读取
-                if (!strlen($content) < $contentSize) {
+                if (strlen($content) < $contentSize) {
                     return;
                 }
-
                 $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
             } else { //数据的一部分或者
                 $this->buffer[intval($fd)]["buffer"].=$content;
@@ -104,7 +102,6 @@ class Tcp implements TransportInterface
                 if (strlen($this->buffer[intval($fd)]["buffer"]) < $this->buffer[intval($fd)]["size"]) {
                     return;
                 }
-
                 $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
             }
 
@@ -118,7 +115,6 @@ class Tcp implements TransportInterface
 
         //onMessage回调
         Event::dispatch("message",[$this,$fd,$content]);
-
     }
 
     public function close($fd,$content=null)
