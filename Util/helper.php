@@ -16,8 +16,8 @@ if (!function_exists("check_env")) {
             die("This server must run in cli mode".PHP_EOL);
         }
 
-        if (strtoupper(substr(PHP_OS, 0, 3)) === 'WIN') {
-            die("This server can not run in WIN system".PHP_EOL);
+        if (is_win()) {
+            return;
         }
 
         if (!extension_loaded("pcntl")) {
