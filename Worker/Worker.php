@@ -57,14 +57,12 @@ class Worker implements WorkerInterface
 
     protected function installSignal()
     {
-        Log::write("in worker install signal");
         //安装停止信号
         self::$scheduler->add(SIGINT,SchedulerInterface::TYPE_SIGNAL,[$this,"stop"]);
     }
 
     public function stop()
     {
-        Log::write("in worker stop");
         $this->transport->stop();
         self::$scheduler->clear();
         @socket_close($this->socket);
