@@ -123,7 +123,7 @@ class Tcp implements TransportInterface
         Event::dispatch("message",[$this,$fd,$content]);
 
         //http相关后续处理
-        if ($this->protocol === "PyServer\Protocol\Http") {
+        if ($this->protocol === "\PyServer\Protocol\Http") {
             //写入访问记录
             $this->writeAccess($fd,$size);
             if ($_SERVER["HTTP_CONNECTION"] !== "keep-alive") {

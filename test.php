@@ -15,11 +15,12 @@ $worker=new PyServer("http://0.0.0.0:8080");
 $worker->on('message',function ($connection,$fd,$content){
 
     if (file_exists($_SERVER["PHP_SELF"]) && is_file($_SERVER["PHP_SELF"])) {
-        $connection->close($fd,file_get_contents($_SERVER["PHP_SELF"]));
+        $connection->send($fd,file_get_contents($_SERVER["PHP_SELF"]));
         return;
     }
 
-    $connection->close($fd,json_encode($content));
+    $connection->send($fd,json_encode($content));
 
 });
+
 $worker->run();
