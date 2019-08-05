@@ -8,8 +8,10 @@
 
 namespace PyServer\Transport;
 
+use PyServer\Protocol\Http;
 use PyServer\Scheduler\Event;
 use PyServer\Scheduler\SchedulerInterface;
+use PyServer\Util\Log;
 use PyServer\Worker\Worker;
 use PyServer\Worker\WorkerInterface;
 
@@ -82,11 +84,13 @@ class Tcp implements TransportInterface
             $this->close($fd);
             return;
         }
+        $size=strlen($content);
 
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
             //获取完整包内容大小
             $contentSize=($this->protocol)::size($content);
+            $size=$contentSize;
 
             //接受到了有包头的包
             if ($contentSize) {
@@ -117,6 +121,15 @@ class Tcp implements TransportInterface
 
         //onMessage回调
         Event::dispatch("message",[$this,$fd,$content]);
+
+        //http相关后续处理
+        if ($this->protocol === "PyServer\Protocol\Http") {
+            //写入访问记录
+            $this->writeAccess($fd,$size);
+            if ($_SERVER["HTTP_CONNECTION"] !== "keep-alive") {
+                $this->close($fd);
+            }
+        }
     }
 
     public function close($fd,$content=null)
@@ -142,6 +155,23 @@ class Tcp implements TransportInterface
         }
         $this->connections=[];
         $this->buffer=[];
+    }
+
+    protected function writeAccess($fd,$size)
+    {
+        socket_getpeername($fd,$ip);
+        $info=[
+            "ip"        =>  $ip,
+            "method"    =>  $_SERVER["REQUEST_METHOD"],
+            "uri"       =>  $_SERVER["REQUEST_URI"],
+            "protocol"  =>  $_SERVER["SERVER_PROTOCOL"],
+            "code"      =>  Http::$status,
+            "size"      =>  $size,
+            "referfer"  =>  $_SERVER["HTTP_REFERER"] ? $_SERVER["HTTP_REFERER"] : "--",
+            "client"    =>  $_SERVER["HTTP_USER_AGENT"],
+        ];
+
+        Log::access($info);
     }
 
 }
