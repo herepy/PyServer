@@ -52,12 +52,12 @@ class PyServer implements WorkerInterface
     /**
      * @var string 日志文件名
      */
-    protected $logFile="/var/log/PyServer-log.log";
+    protected $logFile="php://output";
 
     /**
      * @var string 客户端http请求日志
      */
-    protected $accessFile="/var/log/PyServer-access.log";
+    protected $accessFile="php://output";
 
     /**
      * @var string 存放守护进程pid文件
@@ -394,6 +394,17 @@ USAGE;
      */
     protected function start()
     {
+        //如果时守护进程模式运行，并且没有修改日志输出地址，设置一个默认输出地址，防止输出在屏幕上
+        if ($this->deamon) {
+            //判断是否修改了日志输出地址
+            if ($this->logFile == "php://output") {
+                $this->logFile= "/var/log/PyServer-log.log";
+            }
+            if ($this->accessFile == "php://output") {
+                $this->accessFile= "/var/log/PyServer-log.log";
+            }
+        }
+
         //设置进程名
         cli_set_process_title("PyServer-Master");
 
