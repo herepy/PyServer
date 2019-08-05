@@ -226,6 +226,11 @@ USAGE;
      */
     protected function installSignal()
     {
+        //windows系统，跳过
+        if (is_win()) {
+            return;
+        }
+
         //停止
         pcntl_signal(SIGINT,[$this,"signalHandler"],false);
 

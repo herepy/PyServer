@@ -57,6 +57,11 @@ class Worker implements WorkerInterface
 
     protected function installSignal()
     {
+        //windows系统，跳过
+        if (is_win()) {
+            return;
+        }
+
         //安装停止信号
         self::$scheduler->add(SIGINT,SchedulerInterface::TYPE_SIGNAL,[$this,"stop"]);
     }
