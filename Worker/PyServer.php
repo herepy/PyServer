@@ -391,6 +391,10 @@ USAGE;
         //设置日志文件
         Log::setFile($this->logFile);
 
+        if (is_win()) {
+            return $this->runWorker();
+        }
+
         //是否守护进程模式
         if ($this->deamon) {
             $this->deamon();
@@ -425,15 +429,28 @@ USAGE;
             } else if ($pid > 0) {  //主进程
                 $this->workerPids[$pid]=$pid;
             } else {  //工作进程
-                //设置进程名
-                cli_set_process_title("PyServer-worker");
-                $worker=new Worker($this->transport,$this->protocol,$this->address,$this->port);
-                $worker->run();
-                //工作进程异常退出loop
-                Log::write("worker abnormal exit,pid is ".posix_getpid());
-                exit(1);
+                //阻塞
+                $this->runWorker("PyServer-worker");
             }
         }
+    }
+
+    /**
+     * 运行工作进程
+     * @param string $workerName 设置工作进程名
+     */
+    protected function runWorker($workerName=null)
+    {
+        if ($workerName) {
+            //设置进程名
+            cli_set_process_title($workerName);
+        }
+
+        $worker=new Worker($this->transport,$this->protocol,$this->address,$this->port);
+        $worker->run();
+        //工作进程异常退出loop
+        Log::write("worker abnormal exit,pid is ".posix_getpid());
+        exit(1);
     }
 
 }

@@ -98,7 +98,7 @@ class Worker implements WorkerInterface
         }
 
         //不是unix,设置端口复用
-        if ($protocol !== 0) {
+        if ($protocol !== 0 && !is_win()) {
             socket_set_option($this->socket,SOL_SOCKET,SO_REUSEPORT,1);
         }
         socket_bind($this->socket,$address,$port);

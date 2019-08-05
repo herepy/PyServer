@@ -166,8 +166,10 @@ class Select implements SchedulerInterface
     public function loop()
     {
         while (true) {
-            //触发信号处理
-            pcntl_signal_dispatch();
+            if (!is_win()) {
+                //触发信号处理
+                pcntl_signal_dispatch();
+            }
 
             $read=$this->readEvent;
             $write=$this->writeEvent;
@@ -198,8 +200,6 @@ class Select implements SchedulerInterface
                 }
             }
 
-            //触发信号处理
-            pcntl_signal_dispatch();
         }
 
     }
