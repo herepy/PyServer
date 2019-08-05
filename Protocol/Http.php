@@ -131,6 +131,7 @@ class Http implements ProtocolInterface
         self::$header=[];
         self::$cookie=[];
         $_GET=$_POST=$_SESSION=$_COOKIE=$_REQUEST=$_FILES=array();
+
         $_SERVER=[
             'SERVER_SOFTWARE'       =>  'PyServer/1.0',
             'SERVER_PROTOCOL'       =>  '',
@@ -175,35 +176,38 @@ class Http implements ProtocolInterface
         //解析请求头
         foreach ($headerArr as $line) {
             $info=explode(":",$line,2);
+            $key=trim($info[0]);
+            $value=trim($info[1]);
+
             //$_SERVER
-            if ($info[0] == "Host") {
-                $_SERVER["HTTP_HOST"]=trim($info[1]);
+            if ($key == "Host") {
+                $_SERVER["HTTP_HOST"]=$value;
             }
-            if ($info[0] == "Connection") {
-                $_SERVER["HTTP_CONNECTION"]=$info[1];
+            if ($key == "Connection") {
+                $_SERVER["HTTP_CONNECTION"]=$value;
             }
-            if ($info[0] == "Referer") {
-                $_SERVER["HTTP_REFERER"]=$info[1];
+            if ($key == "Referer") {
+                $_SERVER["HTTP_REFERER"]=$value;
             }
-            if ($info[0] == "User-Agent") {
-                $_SERVER["HTTP_USER_AGENT"]=$info[1];
+            if ($key == "User-Agent") {
+                $_SERVER["HTTP_USER_AGENT"]=$value;
             }
-            if ($info[0] == "Accept-Encoding") {
-                $_SERVER["HTTP_ACCEPT_ENCODING"]=$info[1];
+            if ($key == "Accept-Encoding") {
+                $_SERVER["HTTP_ACCEPT_ENCODING"]=$value;
             }
-            if ($info[0] == "Accept-Charset") {
-                $_SERVER["HTTP_ACCEPT_CHARSET"]=$info[1];
+            if ($key == "Accept-Charset") {
+                $_SERVER["HTTP_ACCEPT_CHARSET"]=$value;
             }
-            if ($info[0] == "Content-Length") {
-                $_SERVER["CONTENT_LENGTH"]=$info[1];
+            if ($key == "Content-Length") {
+                $_SERVER["CONTENT_LENGTH"]=$value;
             }
-            if ($info[0] == "Content-Type") {
-                $_SERVER["CONTENT_TYPE"]=$info[1];
+            if ($key == "Content-Type") {
+                $_SERVER["CONTENT_TYPE"]=$value;
             }
 
             //$_COOKIE
-            if ($info[0] == "Cookie") {
-                $cookieStr=str_replace(";","&",$info[1]);
+            if ($key == "Cookie") {
+                $cookieStr=str_replace(";","&",$value);
                 parse_str($cookieStr,$_COOKIE);
             }
 
