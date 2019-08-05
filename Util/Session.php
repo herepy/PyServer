@@ -8,7 +8,6 @@
 
 namespace PyServer\Util;
 
-use PyServer\Protocol\Http;
 
 class Session
 {
@@ -33,6 +32,11 @@ class Session
     public $dir;
 
     /**
+     * @var int 有效期
+     */
+    public $expire;
+
+    /**
      * @var bool 是否已开启session
      */
     protected $started=false;
@@ -42,11 +46,13 @@ class Session
      * Session constructor.
      * @param string $dir 存放目录
      * @param string $sessionName session名
+     * @param int $expire 有效期
      */
-    public function __construct($dir,$sessionName)
+    public function __construct($dir,$sessionName,$expire=86400)
     {
         $this->dir=$dir;
         $this->name=$sessionName;
+        $this->expire=$expire;
 
         //todo 目前默认使用文件储存
         self::$handler=new FileSessionHandler($dir);
@@ -64,8 +70,8 @@ class Session
 
         self::$handler->open($this->dir,$this->name);
 
-        //session清理 todo 时间待定
-        self::$handler->gc(1440);
+        //session清理
+        self::$handler->gc($this->expire);
 
         if ($sessionId) {  //手动传入sessionId
             $this->id=$sessionId;
