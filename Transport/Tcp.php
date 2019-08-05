@@ -85,8 +85,10 @@ class Tcp implements TransportInterface
 
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
+            //获取完整包内容大小
             $contentSize=($this->protocol)::size($content);
 
+            //接受到了有包头的包
             if ($contentSize) {
                 $this->buffer[intval($fd)]=["size"=>$contentSize,"buffer"=>$content];
 
@@ -94,7 +96,6 @@ class Tcp implements TransportInterface
                 if (strlen($content) < $contentSize) {
                     return;
                 }
-                $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
             } else { //数据的一部分或者
                 $this->buffer[intval($fd)]["buffer"].=$content;
 
@@ -102,8 +103,9 @@ class Tcp implements TransportInterface
                 if (strlen($this->buffer[intval($fd)]["buffer"]) < $this->buffer[intval($fd)]["size"]) {
                     return;
                 }
-                $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
             }
+            //完整包内容
+            $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
 
             set_error_handler(function (){});
             $content=($this->protocol)::decode($content);
