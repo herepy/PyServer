@@ -32,6 +32,11 @@ if (!function_exists("check_env")) {
 
 if (!function_exists("get_scheduler")) {
 
+    /**
+     * 获取系统可用调度器
+     * @param string $name 手动指定调度器
+     * @return PyServer\Scheduler\SchedulerInterface 调度器实例
+     */
     function get_scheduler($name=null)
     {
         if (!$name) {
@@ -49,5 +54,17 @@ if (!function_exists("get_scheduler")) {
             exit(1);
         }
         return new $class();
+    }
+}
+
+if (!function_exists("is_win")) {
+
+    /**
+     * 是否是windows系统
+     * @return bool
+     */
+    function is_win()
+    {
+        return strtoupper(substr(PHP_OS, 0, 3)) === "WIN" ? true : false;
     }
 }
