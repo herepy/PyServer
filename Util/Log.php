@@ -14,7 +14,7 @@ class Log
 
     protected static $level=["debug","info","notice","warning","error","critical","alert","emergency"];
 
-    public static function write($msg,$level="info")
+    protected static function write($msg,$level="info")
     {
         if (!in_array($level,self::$level)) {
             self::write("log level {$level} not allowed");
