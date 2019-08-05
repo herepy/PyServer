@@ -217,7 +217,7 @@ class Http implements ProtocolInterface
                 } else if (strpos($_SERVER["CONTENT_TYPE"],"application/x-www-form-urlencoded") !== false) {
                     parse_str($body,$_POST);
                 } else if (strpos($_SERVER["CONTENT_TYPE"],"multipart/form-data") !== false) {
-                    //todo 表单文件解析
+                    //表单文件解析
                     if (preg_match("/boundary=(.+)$/",$_SERVER["CONTENT_TYPE"],$matches)) {
                         $boundary=$matches[1];
                         self::getFromData($body,$boundary);
@@ -229,7 +229,7 @@ class Http implements ProtocolInterface
         //$_REQUEST
         $_REQUEST=array_merge($_GET,$_POST,$_COOKIE);
 
-        //$_SESSION
+        //$_SESSION session默认有效期86400秒
         $session=new Session("./runtime/session","PYSESSION");
         if (isset($_GET["PYSESSION"])) {
             $sessionId=$_GET["PYSESSION"];
@@ -240,8 +240,8 @@ class Http implements ProtocolInterface
 
         //没有传入sessionId,$session->start生成了新的sessionId,需要传给前端保存
         if (!$sessionId && !isset($_COOKIE["PYSESSION"])) {
-            //todo cookie有效期待定
-            Http::setCookie("PYSESSION",$session->id,300);
+            //有效期暂定86400秒
+            Http::setCookie("PYSESSION",$session->id,86400);
         }
 
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
