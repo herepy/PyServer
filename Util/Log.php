@@ -10,7 +10,8 @@ namespace PyServer\Util;
 
 class Log
 {
-    protected static $file;
+    protected static $logFile;
+    protected static $accessFile;
 
     protected static $level=["debug","info","notice","warning","error","critical","alert","emergency"];
 
@@ -22,12 +23,22 @@ class Log
         }
 
         $content=date("Y/m/d H:i:s")."  [{$level}] ".$msg.PHP_EOL;
-        file_put_contents(self::$file,$content,FILE_APPEND );
+        file_put_contents(self::$logFile,$content,FILE_APPEND );
     }
 
-    public static function setFile($filename)
+    public static function setFile($logFile,$accessFile)
     {
-        self::$file=$filename;
+        self::$logFile=$logFile;
+        self::$accessFile=$accessFile;
+    }
+
+    public static function access($info)
+    {
+        //clientIp - - [date] "method uri HTTP/1.1" httpCode httpSize "referer" "clientAgent"
+        $content=$info["ip"].' - - ['.date("Y/m/d H:i:s").'] "'.$info["method"].' '.$info["uri"].' '.$info["protocol"].'" '.
+            $info["code"].' '.$info["size"].' "'.$info["referfer"].'" "'.$info["client"].'"'.PHP_EOL;
+
+        file_put_contents(self::$accessFile,$content,FILE_APPEND);
     }
 
     public static function debug($msg)
@@ -69,6 +80,7 @@ class Log
     {
         self::write($msg,"emergency");
     }
+
 
 
 }

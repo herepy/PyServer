@@ -52,7 +52,12 @@ class PyServer implements WorkerInterface
     /**
      * @var string 日志文件名
      */
-    protected $logFile="/var/log/PyServer.log";
+    protected $logFile="/var/log/PyServer-log.log";
+
+    /**
+     * @var string 客户端http请求日志
+     */
+    protected $accessFile="/var/log/PyServer-access.log";
 
     /**
      * @var string 存放守护进程pid文件
@@ -135,6 +140,10 @@ class PyServer implements WorkerInterface
 
         if (isset($config["logFile"])) {
             $this->logFile=$config["logFile"];
+        }
+
+        if (isset($config["accessFile"])) {
+            $this->accessFile=$config["accessFile"];
         }
         return true;
     }
@@ -389,7 +398,7 @@ USAGE;
         cli_set_process_title("PyServer-Master");
 
         //设置日志文件
-        Log::setFile($this->logFile);
+        Log::setFile($this->logFile,$this->accessFile);
 
         if (is_win()) {
             return $this->runWorker();
