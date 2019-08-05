@@ -50,7 +50,7 @@ if (!function_exists("get_scheduler")) {
 
         $class='\PyServer\Scheduler\\'.$name;
         if (!class_exists($class)) {
-            \PyServer\Util\Log::write("scheduler not found:".$class);
+            \PyServer\Util\Log::error("scheduler not found:".$class);
             exit(1);
         }
         return new $class();

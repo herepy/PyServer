@@ -50,7 +50,7 @@ class Event implements SchedulerInterface
     public function init()
     {
         if (!extension_loaded("event") || !class_exists("\Event")) {
-            Log::write("can not found extension event");
+            Log::error("can not found extension event");
             exit(1);
         }
 

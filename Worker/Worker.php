@@ -93,7 +93,7 @@ class Worker implements WorkerInterface
         //创建监听socket
         $this->socket=socket_create($domain,$type,$protocol);
         if (!$this->socket) {
-            Log::write("create socket failed");
+            Log::error("create socket failed");
             exit(1);
         }
 

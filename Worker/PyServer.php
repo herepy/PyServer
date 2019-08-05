@@ -309,7 +309,7 @@ USAGE;
     {
         $pid=pcntl_fork();
         if ($pid == -1) {
-            Log::write('fork failed,please try again');
+            Log::error('fork failed,please try again');
             exit(1);
         } else if ($pid > 0) {
             exit(0);
@@ -317,7 +317,7 @@ USAGE;
 
         $pid=pcntl_fork();
         if ($pid == -1) {
-            Log::write('fork failed,please try again');
+            Log::error('fork failed,please try again');
             exit(1);
         } else if ($pid > 0) {
             exit(0);
@@ -325,7 +325,7 @@ USAGE;
 
         //设置会话组长
         if (posix_setsid() == -1) {
-            Log::write("make the current process a session leader failed");
+            Log::error("make the current process a session leader failed");
             exit(1);
         }
         umask(0);
@@ -346,7 +346,7 @@ USAGE;
             if ($pid > 0) {
                 unset($this->workerPids[$pid]);
                 //todo 记录日志
-                Log::write("monitoer get worker ".$pid." exited");
+                Log::error("monitoer get worker ".$pid." exited");
             }
             pcntl_signal_dispatch();
         }
@@ -424,7 +424,7 @@ USAGE;
         for ($i=0;$i<$needCount;$i++) {
             $pid=pcntl_fork();
             if ($pid == -1) {
-                Log::write("fork worker failed");
+                Log::error("fork worker failed");
                 exit(1);
             } else if ($pid > 0) {  //主进程
                 $this->workerPids[$pid]=$pid;
@@ -449,7 +449,7 @@ USAGE;
         $worker=new Worker($this->transport,$this->protocol,$this->address,$this->port);
         $worker->run();
         //工作进程异常退出loop
-        Log::write("worker abnormal exit,pid is ".posix_getpid());
+        Log::error("worker abnormal exit,pid is ".posix_getpid());
         exit(1);
     }
 
