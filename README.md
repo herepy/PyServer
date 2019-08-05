@@ -46,6 +46,7 @@ $worker->config([
     "workerCount"   =>  4,                //工作进程数
     "deamon"        =>  true              //守护进程模式
     "logFile"       =>  "/log/xx.log"     //日志文件地址
+    "accessFile"    =>  "/log/access.log" //http访问记录文件地址
 ]);
 
 //设置工作进程启动时的回调
@@ -67,8 +68,8 @@ $worker=new PyServer("http://0.0.0.0:8080");
 
 //设置接收到客户端消息时的回调
 $worker->on('message',function ($connection,$fd,$content){
-    //发送数据并断开连接
-    $connection->close($fd,json_encode($content));
+    //发送数据
+    $connection->send($fd,json_encode($content));
 });
 
 $worker->run();
