@@ -337,22 +337,29 @@ class Http implements ProtocolInterface
 
     /**
      * 解析multipart/form-data数据到全局变量$_POST/$_FILES
-     * @param $body
-     * @param $boundary
+     * @param string $body 请求正文
+     * @param string $boundary 请求正文边界（分割符）
      */
     protected static function getFromData($body,$boundary)
     {
-
+        //去掉请求正文中的结尾边界
         $body=str_replace("--".$boundary."--","",$body);
+        //分割正文
         $formData=explode("--".$boundary."\r\n",$body);
 
+        //去掉分割后可能有的第一个空白符
         if ($formData[0] === "") {
             unset($formData[0]);
         }
 
+        //循环处理单个正文项
         foreach ($formData as $item) {
+            //分割键值属性内容
             $itemInfo=explode("\r\n\r\n",$item,2);
+            //去掉值的尾部换行符
             $itemValue=substr($itemInfo[1],0,-2);
+
+            //匹配键属性，看是否时文件上传
             if (strpos($itemInfo[0],"filename") === false) {
                 preg_match('/Content-Disposition: form-data; name="(.+)"/',$itemInfo[0],$matches);
             } else {
@@ -361,9 +368,12 @@ class Http implements ProtocolInterface
 
             if (count($matches) == 2) {
                 $_POST[$matches[1][0]]=$itemValue;
-            } else {  //文件
+            } else {
+                //保存文件到运行时目录
                 $tmpFile="./runtime/upload/".$matches[2][0];
                 file_put_contents($tmpFile,$itemValue);
+
+                //保存文件信息到全局变量
                 $_FILES[$matches[1][0]]=[
                     "name"      =>  $matches[2][0],
                     "type"      =>  $matches[3][0],
