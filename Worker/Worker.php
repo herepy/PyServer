@@ -62,6 +62,9 @@ class Worker implements WorkerInterface
             return;
         }
 
+        //去掉可能从父进程继承的信号处理方式
+        pcntl_signal(SIGINT,SIG_IGN,false);
+
         //安装停止信号
         self::$scheduler->add(SIGINT,SchedulerInterface::TYPE_SIGNAL,[$this,"stop"]);
     }
