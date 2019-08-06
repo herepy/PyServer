@@ -126,6 +126,7 @@ class Tcp implements TransportInterface
         if ($this->protocol === "\PyServer\Protocol\Http") {
             //写入访问记录
             $this->writeAccess($fd,$size);
+            //是否是复用连接
             if ($_SERVER["HTTP_CONNECTION"] !== "keep-alive") {
                 $this->close($fd);
             }
