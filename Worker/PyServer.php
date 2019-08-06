@@ -64,6 +64,10 @@ class PyServer implements WorkerInterface
      */
     protected $pidFile="/run/pyserver.pid";
 
+    protected $status="running";
+
+    protected $waitExitWorkerPid=null;
+
     /**
      * 创建一个主进程
      * PyServer constructor.
@@ -221,8 +225,8 @@ USAGE;
             case "stop":
                 $this->stop();
                 break;
-            case "status":
-                //todo
+            case "reload":
+                $this->reload();
                 break;
             case "help":
             default:
@@ -248,21 +252,26 @@ USAGE;
 
         //状态
         pcntl_signal(SIGUSR1,[$this,"signalHandler"],false);
+
+        pcntl_signal(SIGPIPE, SIG_IGN, false);
     }
 
     /**
      * 信号处理器
-     * @param int $sinal 接收到的信号
+     * @param int $signal 接收到的信号
      */
-    public function signalHandler($sinal)
+    public function signalHandler($signal)
     {
-        switch ($sinal) {
+        switch ($signal) {
             //停止
             case SIGINT:
-                $this->doStop();
+                $this->status="stoping";
+                $this->doStop(true);
                 break;
+            //重启
             case SIGQUIT:
-                //todo
+                $this->status="reloading";
+                $this->doReload();
                 break;
             case SIGUSR1:
                 //todo
@@ -279,17 +288,35 @@ USAGE;
         foreach ($this->workerPids as $pid) {
             posix_kill($pid,SIGINT);
         }
-        //所有子进程退出完毕，自身退出
+
+        //等待所有子进程退出完毕
         while (count($this->workerPids) != 0) {
             $pid=pcntl_wait($status,WUNTRACED);
             if ($pid >0) {
                 unset($this->workerPids[$pid]);
             }
         }
+
+        //自身退出
         if ($this->deamon) {
             unlink($this->pidFile);
         }
         exit(0);
+    }
+
+    /**
+     * 守护进程执行重启操作
+     */
+    protected function doReload()
+    {
+        //留一个等其他退出重启后再退出
+        $this->waitExitWorkerPid=array_pop($this->workerPids);
+
+        //退出工作进程
+        foreach ($this->workerPids as $pid) {
+            posix_kill($pid,SIGINT);
+        }
+
     }
 
     /**
@@ -349,15 +376,29 @@ USAGE;
      */
     protected function monitor()
     {
+        $this->status="running";
+
         while (1) {
             pcntl_signal_dispatch();
             $pid=pcntl_wait($status,WUNTRACED);
+            pcntl_signal_dispatch();
+
             if ($pid > 0) {
                 unset($this->workerPids[$pid]);
-                //todo 记录日志
-                Log::error("monitoer get worker ".$pid." exited");
+                if ($status != 0) {
+                    Log::error("monitoer get worker ".$pid." exited");
+                }
+                $this->forkWorker();
             }
-            pcntl_signal_dispatch();
+
+            if ($this->status == "stopping") {
+                exit(0);
+            } else if ($this->status == "reloading" && $this->waitExitWorkerPid) {
+                posix_kill($this->waitExitWorkerPid,SIGINT);
+                $this->waitExitWorkerPid=null;
+                $this->status="running";
+            }
+
         }
     }
 
@@ -384,9 +425,22 @@ USAGE;
         die("stop fail".PHP_EOL);
     }
 
+    /**
+     * 发送重启信号给守护进程
+     */
     protected function reload()
     {
         //todo
+        $pid=$this->checkAndGetPid();
+        if (!$pid) {
+            die("PyServer is not running".PHP_EOL);
+        }
+
+        //发送信号
+        posix_kill($pid,SIGQUIT);
+
+        //验证是否成功 todo
+
     }
 
     /**
@@ -401,7 +455,7 @@ USAGE;
                 $this->logFile= "/var/log/PyServer-log.log";
             }
             if ($this->accessFile == "php://output") {
-                $this->accessFile= "/var/log/PyServer-log.log";
+                $this->accessFile= "/var/log/PyServer-access.log";
             }
         }
 
