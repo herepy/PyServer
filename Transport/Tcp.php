@@ -33,6 +33,11 @@ class Tcp implements TransportInterface
     protected $maxSize=10240;
 
     /**
+     * @var int 可接受单个包大小
+     */
+    protected $maxPackageSize=8192000;
+
+    /**
      * @var array 所有连接fd [intval($fd)=>$fd]
      */
     public $connections=[];
@@ -94,6 +99,13 @@ class Tcp implements TransportInterface
 
             //接受到了有包头的包
             if ($contentSize) {
+                //超过单个包可接受大小，丢弃并关闭连接
+                if ($contentSize > $this->maxPackageSize) {
+                    Log::info("Out of package size limit");
+                    $this->close($fd);
+                    return;
+                }
+
                 $this->buffer[intval($fd)]=["size"=>$contentSize,"buffer"=>$content];
 
                 //只接受了一部分数据，等待下一次的读取
