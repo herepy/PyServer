@@ -301,6 +301,7 @@ USAGE;
         if ($this->deamon) {
             unlink($this->pidFile);
         }
+        Log::close();
         exit(0);
     }
 

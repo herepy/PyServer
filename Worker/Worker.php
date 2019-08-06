@@ -71,6 +71,7 @@ class Worker implements WorkerInterface
 
     public function stop()
     {
+        Log::close();
         $this->transport->stop();
         self::$scheduler->clear();
         @socket_close($this->socket);
