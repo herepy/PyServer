@@ -90,7 +90,6 @@ class Tcp implements TransportInterface
             return;
         }
         $size=strlen($content);
-
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
             //获取完整包内容大小
@@ -101,7 +100,6 @@ class Tcp implements TransportInterface
             if ($contentSize) {
                 //超过单个包可接受大小，丢弃并关闭连接
                 if ($contentSize > $this->maxPackageSize) {
-                    Log::info("Out of package size limit");
                     $this->close($fd);
                     return;
                 }

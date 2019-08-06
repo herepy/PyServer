@@ -249,7 +249,8 @@ class Http implements ProtocolInterface
         }
 
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
-            "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session];
+            "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session
+        ];
     }
 
     /**
