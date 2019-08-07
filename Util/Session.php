@@ -121,18 +121,18 @@ class Session
      */
     public function createId($prefix="")
     {
-        $lib="abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ0123456789";
-        $length=16;
-        do{
-            $str="";
-            while ($length>0) {
-                $str.=$lib[mt_rand(0,strlen($lib)-1)];
-                $length--;
-            }
-            $id=$prefix.$str;
-        }while(file_exists($this->dir.DIRECTORY_SEPARATOR.$id));
+        $length=12;
+        $string = '';
 
-        return $id;
+        while (($len = strlen($string)) < $length) {
+            $size = $length - $len;
+
+            $bytes = random_bytes($size);
+
+            $string .= substr(str_replace(['/', '+', '='], '', base64_encode($bytes)), 0, $size);
+        }
+
+        return $prefix.$string;
     }
 
     /**
