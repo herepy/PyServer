@@ -159,6 +159,9 @@ class Session
      */
     public function __destruct()
     {
+        if (!$this->started) {
+            return;
+        }
         $this->close();
     }
 
