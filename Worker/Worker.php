@@ -80,7 +80,7 @@ class Worker implements WorkerInterface
 
     public function listen($transport,$protocol,$address,$port)
     {
-        $this->protocol="\\PyServer\\Protocol\\".ucfirst($protocol);
+        $this->protocol=$protocol?"\\PyServer\\Protocol\\".ucfirst($protocol):null;
         $transportName="\\PyServer\\Transport\\".ucfirst($transport);
         $this->transport=new $transportName($this,$this->protocol);
 
@@ -107,6 +107,13 @@ class Worker implements WorkerInterface
         }
         socket_bind($this->socket,$address,$port);
         socket_listen($this->socket);
+
+        if (function_exists('socket_import_stream') && $transport === 'tcp') {
+            set_error_handler(function(){});
+            socket_set_option($this->socket, SOL_SOCKET, SO_KEEPALIVE, 1);
+            socket_set_option($this->socket, SOL_TCP, TCP_NODELAY, 1);
+            restore_error_handler();
+        }
         //非阻塞模式
         socket_set_nonblock($this->socket);
     }
