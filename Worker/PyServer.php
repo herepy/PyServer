@@ -52,12 +52,12 @@ class PyServer implements WorkerInterface
     /**
      * @var string 日志文件名
      */
-    protected $logFile="php://output";
+    protected $logFile="php://stdout";
 
     /**
      * @var string 客户端http请求日志
      */
-    protected $accessFile="php://output";
+    protected $accessFile="php://stdout";
 
     /**
      * @var string 存放守护进程pid文件
