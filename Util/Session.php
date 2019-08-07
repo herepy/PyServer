@@ -9,6 +9,8 @@
 namespace PyServer\Util;
 
 
+use PyServer\Protocol\Http;
+
 class Session
 {
     /**
@@ -60,7 +62,6 @@ class Session
 
     /**
      * 开启session
-     * @param string $sessionId 手动指定sessionId
      */
     public function start()
     {
@@ -79,7 +80,9 @@ class Session
         } else if (isset($_GET[$this->name])) {
             $this->id=$_GET[$this->name];
         } else {
-            $this->id=$this->createId();;
+            $this->id=$this->createId();
+            //返回客户端sessionId
+            Http::setCookie($this->name,$this->id,$this->expire);
         }
 
         $data=self::$handler->read($this->id);
