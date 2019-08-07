@@ -453,10 +453,10 @@ USAGE;
         if ($this->deamon) {
             //判断是否修改了日志输出地址
             if ($this->logFile == "php://output") {
-                $this->logFile= "/var/log/PyServer-log.log";
+                $this->logFile= "./runtime/log/PyServer-log.log";
             }
             if ($this->accessFile == "php://output") {
-                $this->accessFile= "/var/log/PyServer-access.log";
+                $this->accessFile= "./runtime/log/PyServer-access.log";
             }
         }
 
