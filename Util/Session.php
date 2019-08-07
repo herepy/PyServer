@@ -62,7 +62,7 @@ class Session
      * 开启session
      * @param string $sessionId 手动指定sessionId
      */
-    public function start($sessionId=null)
+    public function start()
     {
         if ($this->started) {
             return;
@@ -73,12 +73,13 @@ class Session
         //session清理
         self::$handler->gc($this->expire);
 
-        if ($sessionId) {  //手动传入sessionId
-            $this->id=$sessionId;
-        } else if (isset($_COOKIE[$this->name])) {  //cookie中读取sessionId
+        //获取sessionId
+        if (isset($_COOKIE[$this->name])) {
             $this->id=$_COOKIE[$this->name];
-        } else {  //生成sessionId
-            $this->id=$this->createId();
+        } else if (isset($_GET[$this->name])) {
+            $this->id=$_GET[$this->name];
+        } else {
+            $this->id=$this->createId();;
         }
 
         $data=self::$handler->read($this->id);
