@@ -61,8 +61,9 @@ class Log
         }
 
         //clientIp - - [date] "method uri HTTP/1.1" httpCode httpSize "referer" "clientAgent"
-        $content=$info["ip"].' - - ['.date("Y/m/d H:i:s").'] "'.$info["method"].' '.$info["uri"].' '.$info["protocol"].'" '.
-            $info["code"].' '.$info["size"].' "'.$info["referfer"].'" "'.$info["client"].'"'.PHP_EOL;
+        $content=$info["ip"].' - - ['.date("Y/m/d H:i:s").'] "'.$info["method"].' '.
+            $info["uri"].' '.$info["protocol"].'" '.$info["code"].' '.$info["size"].' "'.
+            $info["referfer"].'" "'.$info["client"].'"'.PHP_EOL;
 
         fwrite(self::$accessFileHandle,$content);
     }
