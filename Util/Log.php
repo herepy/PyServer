@@ -39,14 +39,14 @@ class Log
         self::$accessFile=$accessFile;
 
         //不是标准输出，判断目录是否存在，不存在就创建
-        if ($logFile !== "php://stdout") {
+        if ($logFile !== "php://output") {
             $logDir=dirname($logFile);
             if (!file_exists($logDir)) {
                 mkdir($logDir,true);
             }
         }
 
-        if ($accessFile !== "php://stdout") {
+        if ($accessFile !== "php://output") {
             $accessDir=dirname($accessFile);
             if (!file_exists($accessDir)) {
                 mkdir($accessDir,true);
