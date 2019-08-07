@@ -233,20 +233,8 @@ class Http implements ProtocolInterface
         //$_REQUEST
         $_REQUEST=array_merge($_GET,$_POST,$_COOKIE);
 
-        //$_SESSION session默认有效期86400秒
+        //$_SESSION session默认有效期86400秒 业务中开启使用session： $session->start();
         $session=new Session("./runtime/session","PYSESSION");
-        if (isset($_GET["PYSESSION"])) {
-            $sessionId=$_GET["PYSESSION"];
-        } else {
-            $sessionId=null;
-        }
-        $session->start($sessionId);
-
-        //没有传入sessionId,$session->start生成了新的sessionId,需要传给前端保存
-        if (!$sessionId && !isset($_COOKIE["PYSESSION"])) {
-            //有效期暂定86400秒
-            Http::setCookie("PYSESSION",$session->id,86400);
-        }
 
         return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session
