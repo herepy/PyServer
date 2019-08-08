@@ -134,11 +134,11 @@ class PyServer implements WorkerInterface
             return false;
         }
 
-        if (isset($config["deamon"])) {
+        if (isset($config["deamon"]) && !is_win()) {
             $this->deamon=$config["deamon"];
         }
 
-        if (isset($config["workerCount"])) {
+        if (isset($config["workerCount"]) && !is_win()) {
             $this->workerCount=$config["workerCount"];
         }
 
@@ -179,7 +179,7 @@ class PyServer implements WorkerInterface
     ------------------------------------------
     
 LOGO;
-
+    echo PHP_EOL;
     }
 
     /**
@@ -452,12 +452,14 @@ USAGE;
         //如果是守护进程模式运行，并且没有修改日志输出地址，设置一个默认输出地址，防止输出在屏幕上
         if ($this->deamon) {
             //判断是否修改了日志输出地址
-            if ($this->logFile == "php://output") {
+            if ($this->logFile == "php://stdout") {
                 $this->logFile= "./runtime/log/PyServer-log.log";
             }
-            if ($this->accessFile == "php://output") {
+            if ($this->accessFile == "php://stdout") {
                 $this->accessFile= "./runtime/log/PyServer-access.log";
             }
+        } else {
+            $this->showLogo();
         }
 
         //设置进程名
