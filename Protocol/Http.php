@@ -84,7 +84,7 @@ class Http implements ProtocolInterface
     /**
      * 请求数据的大小
      * @param string $buffer 客户端请求数据
-     * @return int 数据包的大小，为0的话认为是数据包的一部分
+     * @return int 从数据包中读取完整数据包大小，如果数据包有误或是数据包的一部分，返回0
      */
     public static function size($buffer)
     {
