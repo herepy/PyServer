@@ -103,6 +103,8 @@ class Tcp implements TransportInterface
                 if ($handshakeInfo === false) {
                     $this->close($fd);
                 }
+
+                socket_write($fd,$handshakeInfo,strlen($handshakeInfo));
                 $this->handshake[intval($fd)]=$fd;
                 return;
             }
