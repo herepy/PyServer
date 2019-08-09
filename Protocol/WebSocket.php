@@ -77,4 +77,87 @@ class WebSocket implements ProtocolInterface
     {
         // TODO: Implement encode() method.
     }
+
+    /**
+     * 生成握手信息
+     * @param $buffer
+     * @return mixed 握手返回信息，如果不是http请求，返回false
+     */
+    protected static function handshake($buffer)
+    {
+        //验证格式
+        $tmp=explode("\r\n\r\n",$buffer,2);
+        $header=$tmp[0];
+        $headerArr=explode("\r\n",$header);
+        if (!count($headerArr)) {
+            return false;
+        }
+
+        //解析请求首行
+        $first=explode(" ",$headerArr[0]);
+        if (count($first) != 3) {
+            return false;
+        }
+
+        //验证请求方法
+        if ($first[0] != "GET") {
+            return false;
+        }
+
+        $tmp=explode("\r\n\r\n",$buffer,2);
+        $headerArr=explode("\r\n",$tmp[0]);
+
+        //去掉请求首行
+        unset($headerArr[0]);
+
+        $secWebSocketKey="";
+        $secWebSocketProtocol="";
+        $secWebSocketVersion="13";
+
+        $upgrade="";
+        $connection="";
+
+        //解析请求头
+        foreach ($headerArr as $line) {
+            $info=explode(":",$line,2);
+            $key=trim($info[0]);
+            $value=trim($info[1]);
+
+            //获取Upgrade
+            if ($key == "Upgrade") {
+                $upgrade=$value;
+            }
+
+            //获取Connection
+            if ($key == "Connection") {
+                $connection=$value;
+            }
+
+            //获取秘钥key
+            if ($key == "Sec-WebSocket-Key") {
+                $secWebSocketKey=$value;
+            }
+
+            //获取子协议
+            if ($key == "Sec-WebSocket-Protocol") {
+                $secWebSocketProtocol=$value;
+            }
+        }
+
+        if ($connection != "Upgrade" || $upgrade != "websocket") {
+            return false;
+        }
+
+        //生成Sec-WebSocket-Accept
+        $secWebSocketAccept=base64_encode(sha1($secWebSocketKey.'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'));
+
+        $data='HTTP/1.1 101 Switching Protocols\r\n';
+        $data.='Upgrade: websocket\r\n';
+        $data.='Connection: Upgrade\r\n';
+        $data.='Sec-WebSocket-Accept: '.$secWebSocketAccept.'\r\n';
+        $data.='Sec-WebSocket-Version: '.$secWebSocketVersion.'\r\n';
+        $data.=' Sec-WebSocket-Protocol: '.$secWebSocketProtocol.'\r\n\r\n';
+
+        return $data;
+    }
 }
