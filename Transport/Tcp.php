@@ -43,9 +43,14 @@ class Tcp implements TransportInterface
     public $connections=[];
 
     /**
-     * @var string 连接当前已接受到的数据 [intval($fd)=>[size=>xxx,buffer=>xxx]]
+     * @var array 连接当前已接受到的数据 [intval($fd)=>[size=>xxx,buffer=>xxx]]
      */
     protected $buffer=[];
+
+    /**
+     * @var array websocket已握手的连接 [intval(fd1),intval(fd2)]
+     */
+    protected $handshake=[];
 
 
     public function __construct(WorkerInterface $worker, $protocol=null)
@@ -92,6 +97,16 @@ class Tcp implements TransportInterface
         $size=strlen($content);
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
+            //如果是websocket协议,先握手
+            if ($this->protocol == "\PyServer\Protocol\WebSocket" && !isset($this->handshake[intval($fd)])) {
+                $handshakeInfo=($this->protocol)::handshake($content);
+                if ($handshakeInfo === false) {
+                    $this->close($fd);
+                }
+                $this->handshake[intval($fd)]=$fd;
+                return;
+            }
+
             //获取完整包内容大小
             $contentSize=($this->protocol)::size($content);
             $size=$contentSize;
