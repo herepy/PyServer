@@ -110,14 +110,18 @@ class Tcp implements TransportInterface
                 if (strlen($content) < $contentSize) {
                     return;
                 }
-            } else { //数据的一部分或者
+            } else if (isset($this->buffer[intval($fd)])) { //数据的一部分或者
                 $this->buffer[intval($fd)]["buffer"].=$content;
 
                 //只接受了一部分数据，等待下一次的读取
                 if (strlen($this->buffer[intval($fd)]["buffer"]) < $this->buffer[intval($fd)]["size"]) {
                     return;
                 }
+            } else {  //有误的数据包
+                $this->close($fd);
+                return;
             }
+
             //完整包内容
             $content=substr($this->buffer[intval($fd)]["buffer"],0,$this->buffer[intval($fd)]["size"]);
 
