@@ -107,7 +107,7 @@ class PyServer implements WorkerInterface
             $this->transport="unix";
         } else {
             if ($protocol == "ws") {
-                $protocol="websocket";
+                $protocol="webSocket";
             }
             if ($protocol != "tcp" && !class_exists('PyServer\\Protocol\\'.ucfirst($protocol))) {
                 die("protocol is not exist".PHP_EOL);
