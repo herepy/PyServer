@@ -83,7 +83,7 @@ class WebSocket implements ProtocolInterface
      * @param $buffer
      * @return mixed 握手返回信息，如果不是http请求，返回false
      */
-    protected static function handshake($buffer)
+    public static function handshake($buffer)
     {
         //验证格式
         $tmp=explode("\r\n\r\n",$buffer,2);
@@ -149,14 +149,18 @@ class WebSocket implements ProtocolInterface
         }
 
         //生成Sec-WebSocket-Accept
-        $secWebSocketAccept=base64_encode(sha1($secWebSocketKey.'258EAFA5-E914-47DA-95CA-C5AB0DC85B11'));
+        $secWebSocketAccept=base64_encode(sha1($secWebSocketKey.'258EAFA5-E914-47DA-95CA-C5AB0DC85B11',true));
 
-        $data='HTTP/1.1 101 Switching Protocols\r\n';
-        $data.='Upgrade: websocket\r\n';
-        $data.='Connection: Upgrade\r\n';
-        $data.='Sec-WebSocket-Accept: '.$secWebSocketAccept.'\r\n';
-        $data.='Sec-WebSocket-Version: '.$secWebSocketVersion.'\r\n';
-        $data.=' Sec-WebSocket-Protocol: '.$secWebSocketProtocol.'\r\n\r\n';
+        $data="HTTP/1.1 101 Switching Protocols\r\n";
+        $data.="Upgrade: websocket\r\n";
+        $data.="Connection: Upgrade\r\n";
+        $data.="Sec-WebSocket-Accept: ".$secWebSocketAccept."\r\n";
+        $data.="Sec-WebSocket-Version: ".$secWebSocketVersion."\r\n";
+        if ($secWebSocketProtocol) {
+            $data.="Sec-WebSocket-Protocol: ".$secWebSocketProtocol."\r\n\r\n";
+        } else {
+            $data.="\r\n";
+        }
 
         return $data;
     }
