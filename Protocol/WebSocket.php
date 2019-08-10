@@ -102,7 +102,26 @@ class WebSocket implements ProtocolInterface
 
     public static function encode($content)
     {
-        // TODO: Implement encode() method.
+        //第一个byte 10000001
+        $firstByte=chr(129);
+
+        //负载内容长度
+        $len=strlen($content);
+
+        if ($len <= 125) {
+            //0xxxxxxx (xxxxxxx)是负载内容长度
+            $middleByte=chr($len);
+        } else if ($len <= 65535) {
+            //01111110
+            $secondByte=chr(126);
+            $middleByte=$secondByte.pack("n",$len);
+        } else {
+            //01111111
+            $secondByte=chr(127);
+            $middleByte=$secondByte.pack("J",$len);
+        }
+
+        return $firstByte.$middleByte.$content;
     }
 
     /**
