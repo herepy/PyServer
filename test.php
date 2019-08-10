@@ -13,8 +13,9 @@ use PyServer\Worker\PyServer;
 $worker=new PyServer("ws://0.0.0.0:8080");
 //$worker->config(["deamon"=>true,"workerCount"=>2]);
 $worker->on('message',function ($connection,$fd,$content){
-
-    $connection->send($fd,$content);
+    foreach ($connection->connections as $con) {
+        $connection->send($con,intval($fd)." say:".$content);
+    }
 });
 
 $worker->run();
