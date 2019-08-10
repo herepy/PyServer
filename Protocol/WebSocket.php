@@ -118,6 +118,11 @@ class WebSocket implements ProtocolInterface
         return $data;
     }
 
+    /**
+     * 生成frame帧数据
+     * @param string $content 负载内容
+     * @return string frame帧内容
+     */
     public static function encode($content)
     {
         //第一个byte 10000001
