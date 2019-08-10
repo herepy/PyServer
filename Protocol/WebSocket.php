@@ -68,9 +68,36 @@ class WebSocket implements ProtocolInterface
         return $headLen+$dataLen;
     }
 
+    /**
+     * 解析负载内容
+     * @param string $buffer 客户端发送的数据
+     * @return string 负载内容
+     */
     public static function decode($buffer)
     {
-        // TODO: Implement decode() method.
+        //frame帧中payload len的值(2byte中去掉mask部分)
+        $payloadLen=ord($buffer[1]) & 127;
+        //masking key 和 负载内容
+        $maskingKey=$payloadData="";
+
+        if ($payloadLen == 126) {
+            $maskingKey=substr($buffer,4,4);
+            $payloadData=substr($buffer,8);
+        } else if ($payloadLen == 127) {
+            $maskingKey=substr($buffer,10,4);
+            $payloadData=substr($buffer,14);
+        } else {
+            $maskingKey=substr($buffer,2,4);
+            $payloadData=substr($buffer,6);
+        }
+
+        $data="";
+        //解码负载数据
+        for ($i=0;$i<strlen($payloadData);$i++) {
+            $data.=$payloadData[$i] ^ $maskingKey[($i%4)];
+        }
+
+        return $data;
     }
 
     public static function encode($content)
@@ -80,7 +107,7 @@ class WebSocket implements ProtocolInterface
 
     /**
      * 生成握手信息
-     * @param $buffer
+     * @param string $buffer 客户端握手数据
      * @return mixed 握手返回信息，如果不是http请求，返回false
      */
     public static function handshake($buffer)
