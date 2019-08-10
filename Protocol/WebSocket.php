@@ -8,6 +8,8 @@
 
 namespace PyServer\Protocol;
 
+use PyServer\Util\Log;
+
 class WebSocket implements ProtocolInterface
 {
     /*       0                   1                   2                   3
@@ -29,6 +31,10 @@ class WebSocket implements ProtocolInterface
      |                     Payload Data continued ...                |
      +---------------------------------------------------------------+
      */
+
+    const CLOSE="ws00ws";
+    const PING="ws11ws";
+    const PONG="ws22ws";
 
     public static function size($buffer)
     {
@@ -71,14 +77,26 @@ class WebSocket implements ProtocolInterface
     /**
      * 解析负载内容
      * @param string $buffer 客户端发送的数据
-     * @return string 负载内容
+     * @return mixed 负载内容
      */
     public static function decode($buffer)
     {
         //frame帧中payload len的值(2byte中去掉mask部分)
         $payloadLen=ord($buffer[1]) & 127;
+
         //masking key 和 负载内容
         $maskingKey=$payloadData="";
+
+        //opcode
+        $opcode=ord($buffer[0]) & 127;
+        //处理一些控制码
+        if ($opcode == hexdec("%x8")) {
+            return self::CLOSE;
+        } else if ($opcode == hexdec("%x9")) {
+            return self::PING;
+        } else if ($opcode == hexdec("%xA")) {
+            return self::PONG;
+        }
 
         if ($payloadLen == 126) {
             $maskingKey=substr($buffer,4,4);
