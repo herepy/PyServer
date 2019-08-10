@@ -30,7 +30,7 @@ class Tcp implements TransportInterface
     /**
      * @var int 缓冲区大小
      */
-    protected $maxSize=10240;
+    protected $maxSize=65535;
 
     /**
      * @var int 可接受单个包大小
