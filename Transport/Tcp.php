@@ -148,10 +148,20 @@ class Tcp implements TransportInterface
 
             //清空本次接收数据
             $this->buffer[intval($fd)]=["size"=>0,"buffer"=>""];
+
+            //websocket的话，false是主动关闭连接
+            if ($content === false) {
+                $this->close($fd);
+            }
         }
 
         //onMessage回调
-        Event::dispatch("message",[$this,$fd,$content]);
+        try {
+            Event::dispatch("message",[$this,$fd,$content]);
+        } catch (\Throwable $throwable) {
+            $this->close($fd,$throwable->getMessage());
+            return;
+        }
 
         //http相关后续处理
         if ($this->protocol === "\PyServer\Protocol\Http") {
