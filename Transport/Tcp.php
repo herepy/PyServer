@@ -157,12 +157,12 @@ class Tcp implements TransportInterface
                 return;
             } else if ($content == ($this->protocol)::PING) {
                 //todo
-                //onClose回调
+                //onPing回调
                 Event::dispatch("ping",[$this,$fd]);
                 return;
             } else if ($content == ($this->protocol)::PONG) {
                 //todo
-                //onClose回调
+                //onPong回调
                 Event::dispatch("pong",[$this,$fd]);
                 return;
             }
