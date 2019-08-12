@@ -6,7 +6,7 @@
  * Time: 15:42
  */
 
-namespace PyServer\Util;
+namespace Pengyu\Server\Util;
 
 class Log
 {

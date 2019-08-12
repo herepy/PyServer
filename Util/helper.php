@@ -35,22 +35,22 @@ if (!function_exists("get_scheduler")) {
     /**
      * 获取系统可用调度器
      * @param string $name 手动指定调度器
-     * @return PyServer\Scheduler\SchedulerInterface 调度器实例
+     * @return Pengyu\Server\Scheduler\SchedulerInterface 调度器实例
      */
     function get_scheduler($name=null)
     {
         if (!$name) {
             //优先使用Event调度器
-            if (extension_loaded("event") && class_exists("\PyServer\Scheduler\Event")) {
+            if (extension_loaded("event") && class_exists("\Pengyu\Server\Scheduler\Event")) {
                 $name="Event";
             } else {
                 $name="Select";
             }
         }
 
-        $class='\PyServer\Scheduler\\'.$name;
+        $class='\Pengyu\Server\Scheduler\\'.$name;
         if (!class_exists($class)) {
-            \PyServer\Util\Log::error("scheduler not found:".$class);
+            \Pengyu\Server\Util\Log::error("scheduler not found:".$class);
             exit(1);
         }
         return new $class();

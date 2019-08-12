@@ -6,12 +6,12 @@
  * Time: 15:45
  */
 
-namespace PyServer\Worker;
+namespace Pengyu\Server\Worker;
 
-use PyServer\Scheduler\Event;
-use PyServer\Util\Log;
+use Pengyu\Server\Scheduler\Event;
+use Pengyu\Server\Util\Log;
 
-class PyServer implements WorkerInterface
+class Server implements WorkerInterface
 {
 
     /**
@@ -109,7 +109,7 @@ class PyServer implements WorkerInterface
             if ($protocol == "ws") {
                 $protocol="webSocket";
             }
-            if ($protocol != "tcp" && !class_exists('PyServer\\Protocol\\'.ucfirst($protocol))) {
+            if ($protocol != "tcp" && !class_exists('Pengyu\\Server\\Protocol\\'.ucfirst($protocol))) {
                 die("protocol is not exist".PHP_EOL);
             }
             if ($protocol != "tcp") {

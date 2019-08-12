@@ -6,7 +6,7 @@
  * Time: 15:28
  */
 
-namespace PyServer\Worker;
+namespace Pengyu\Server\Worker;
 
 interface WorkerInterface
 {

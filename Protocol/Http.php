@@ -6,9 +6,9 @@
  * Time: 15:59
  */
 
-namespace PyServer\Protocol;
+namespace Pengyu\Server\Protocol;
 
-use PyServer\Util\Session;
+use Pengyu\Server\Util\Session;
 
 class Http implements ProtocolInterface
 {

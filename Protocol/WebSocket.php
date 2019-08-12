@@ -6,9 +6,7 @@
  * Time: 11:26
  */
 
-namespace PyServer\Protocol;
-
-use PyServer\Util\Log;
+namespace Pengyu\Server\Protocol;
 
 class WebSocket implements ProtocolInterface
 {

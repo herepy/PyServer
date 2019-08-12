@@ -6,9 +6,9 @@
  * Time: 16:02
  */
 
-namespace PyServer\Transport;
+namespace Pengyu\Server\Transport;
 
-use PyServer\Worker\WorkerInterface;
+use Pengyu\Server\Worker\WorkerInterface;
 
 interface TransportInterface
 {

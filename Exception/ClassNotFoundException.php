@@ -6,7 +6,7 @@
  * Time: 20:43
  */
 
-namespace PyServer\Exception;
+namespace Pengyu\Server\Exception;
 
 use Throwable;
 

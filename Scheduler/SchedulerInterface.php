@@ -6,7 +6,7 @@
  * Time: 16:18
  */
 
-namespace PyServer\Scheduler;
+namespace Pengyu\Server\Scheduler;
 
 interface SchedulerInterface
 {

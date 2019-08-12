@@ -18,7 +18,7 @@
             "./Util/helper.php"
         ],
         "psr-4": {
-            "Pengyu\\Server": "./"
+            "Pengyu\\Server\\": "./"
         }
     },
     "minimum-stability": "dev"

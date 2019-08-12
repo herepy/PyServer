@@ -6,12 +6,12 @@
  * Time: 15:45
  */
 
-namespace PyServer\Worker;
+namespace Pengyu\Server\Worker;
 
 
-use PyServer\Scheduler\Event;
-use PyServer\Scheduler\SchedulerInterface;
-use PyServer\Util\Log;
+use Pengyu\Server\Scheduler\Event;
+use Pengyu\Server\Scheduler\SchedulerInterface;
+use Pengyu\Server\Util\Log;
 
 class Worker implements WorkerInterface
 {
@@ -26,12 +26,12 @@ class Worker implements WorkerInterface
     public $id;
 
     /**
-     * @var \PyServer\Scheduler\SchedulerInterface 调度器实例
+     * @var \Pengyu\Server\Scheduler\SchedulerInterface 调度器实例
      */
     public static $scheduler;
 
     /**
-     * @var \PyServer\Transport\TransportInterface 传输层实例
+     * @var \Pengyu\Server\Transport\TransportInterface 传输层实例
      */
     protected $transport;
 
@@ -80,8 +80,8 @@ class Worker implements WorkerInterface
 
     public function listen($transport,$protocol,$address,$port)
     {
-        $this->protocol=$protocol?"\\PyServer\\Protocol\\".ucfirst($protocol):null;
-        $transportName="\\PyServer\\Transport\\".ucfirst($transport);
+        $this->protocol=$protocol?"\\Pengyu\\Server\\Protocol\\".ucfirst($protocol):null;
+        $transportName="\\Pengyu\\Server\\Transport\\".ucfirst($transport);
         $this->transport=new $transportName($this,$this->protocol);
 
         //创建监听socket

@@ -6,14 +6,14 @@
  * Time: 16:15
  */
 
-namespace PyServer\Transport;
+namespace Pengyu\Server\Transport;
 
-use PyServer\Protocol\Http;
-use PyServer\Scheduler\Event;
-use PyServer\Scheduler\SchedulerInterface;
-use PyServer\Util\Log;
-use PyServer\Worker\Worker;
-use PyServer\Worker\WorkerInterface;
+use Pengyu\Server\Protocol\Http;
+use Pengyu\Server\Scheduler\Event;
+use Pengyu\Server\Scheduler\SchedulerInterface;
+use Pengyu\Server\Util\Log;
+use Pengyu\Server\Worker\Worker;
+use Pengyu\Server\Worker\WorkerInterface;
 
 class Tcp implements TransportInterface
 {
@@ -98,7 +98,7 @@ class Tcp implements TransportInterface
         //是否有应用层协议，使用协议解码内容
         if ($this->protocol) {
             //如果是websocket协议,先握手
-            if ($this->protocol == "\PyServer\Protocol\WebSocket" && !isset($this->handshake[intval($fd)])) {
+            if ($this->protocol == "\Pengyu\Server\Protocol\WebSocket" && !isset($this->handshake[intval($fd)])) {
                 $handshakeInfo=($this->protocol)::handshake($content);
                 if ($handshakeInfo === false) {
                     $this->close($fd);
@@ -151,7 +151,7 @@ class Tcp implements TransportInterface
         }
 
         //对websocket的一些opcode控制码判断
-        if ($this->protocol == "\PyServer\Protocol\WebSocket") {
+        if ($this->protocol == "\Pengyu\Server\Protocol\WebSocket") {
             if ($content == ($this->protocol)::CLOSE) {
                 $this->close($fd);
                 return;
@@ -177,7 +177,7 @@ class Tcp implements TransportInterface
         }
 
         //http相关后续处理
-        if ($this->protocol === "\PyServer\Protocol\Http") {
+        if ($this->protocol === "\Pengyu\Server\Protocol\Http") {
             //写入访问记录
             $this->writeAccess($fd,$size);
             //是否是复用连接

@@ -6,10 +6,10 @@
  * Time: 10:52
  */
 
-namespace PyServer\Util;
+namespace Pengyu\Server\Util;
 
 
-use PyServer\Protocol\Http;
+use Pengyu\Server\Protocol\Http;
 
 class Session
 {

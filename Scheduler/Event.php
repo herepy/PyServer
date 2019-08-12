@@ -6,9 +6,9 @@
  * Time: 16:30
  */
 
-namespace PyServer\Scheduler;
+namespace Pengyu\Server\Scheduler;
 
-use PyServer\Util\Log;
+use Pengyu\Server\Util\Log;
 
 class Event implements SchedulerInterface
 {

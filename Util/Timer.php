@@ -6,10 +6,10 @@
  * Time: 21:19
  */
 
-namespace PyServer\Util;
+namespace Pengyu\Server\Util;
 
-use PyServer\Scheduler\SchedulerInterface;
-use PyServer\Worker\Worker;
+use Pengyu\Server\Scheduler\SchedulerInterface;
+use Pengyu\Server\Worker\Worker;
 
 class Timer
 {

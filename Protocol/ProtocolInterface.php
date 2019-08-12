@@ -6,7 +6,7 @@
  * Time: 15:49
  */
 
-namespace PyServer\Protocol;
+namespace Pengyu\Server\Protocol;
 
 interface ProtocolInterface
 {
