@@ -64,16 +64,33 @@ require_once "vendor/autoload.php";
 
 use Pengyu\Server\Worker\Server;
 
-$worker=new PyServer("http://0.0.0.0:8080");
+$worker=new Server("http://0.0.0.0:8080");
 
 //设置接收到客户端消息时的回调
 $worker->on('message',function ($connection,$fd,$content){
-    //发送数据
-    $connection->send($fd,json_encode($content));
+    //响应数据
+    $connection->send($fd,"hello world");
 });
 
 $worker->run();
 ```
+
+##### Websocket
+```php
+require_once "vendor/autoload.php";
+
+use Pengyu\Server\Worker\Server;
+
+$worker=new PyServer("ws://0.0.0.0:8888");
+
+$worker->on('message',function ($connection,$fd,$content){
+    //发送数据
+    $connection->send($fd,"received:".$content);
+});
+
+$worker->run();
+```
+
 ##### 定时器
 ```php
 require_once "vendor/autoload.php";
