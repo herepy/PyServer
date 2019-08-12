@@ -15,10 +15,10 @@
     ],
     "autoload": {
         "files":[
-            "./Util/helper.php"
+            "src/Util/helper.php"
         ],
         "psr-4": {
-            "Pengyu\\Server\\": "./"
+            "Pengyu\\Server\\": "src/"
         }
     },
     "minimum-stability": "dev"
