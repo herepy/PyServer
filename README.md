@@ -16,8 +16,8 @@
 - 多种调度器供选择(在安装了event扩展时，默认是Event调度器)
 - Tcp长连接
 - 协议可自定义
-- 可作为传统Web服务器
-- 可作为WebSocket服务器(待实现)
+- 可作为Http服务器
+- 可作为WebSocket服务器
 
 ## 安装
 
@@ -29,7 +29,7 @@ cd PyServer && composer install
 
 ##### composer方式安装
 ```shell
-composer require pengyu/py-server
+composer require pengyu/server
 ```
 
 ## 示例
@@ -38,9 +38,9 @@ composer require pengyu/py-server
 ```php
 require_once "vendor/autoload.php";
 
-use PyServer\Worker\PyServer;
+use Pengyu\Server\Worker\Server;
 
-$worker=new PyServer("http://0.0.0.0:8080");
+$worker=new Server("http://0.0.0.0:8080");
 
 $worker->config([
     "workerCount"   =>  4,                //工作进程数
@@ -57,12 +57,12 @@ $worker->on('workerStart',function ($worker){
 $worker->run();
 ```
 
-##### WebServer
+##### HttpServer
 
 ```php
 require_once "vendor/autoload.php";
 
-use PyServer\Worker\PyServer;
+use Pengyu\Server\Worker\Server;
 
 $worker=new PyServer("http://0.0.0.0:8080");
 
@@ -78,8 +78,8 @@ $worker->run();
 ```php
 require_once "vendor/autoload.php";
 
-use PyServer\Worker\PyServer;
-use PyServer\Util\Timer;
+use Pengyu\Server\Worker\Server;
+use Pengyu\Server\Util\Timer;
 
 $worker=new PyServer("http://0.0.0.0:8080");
 
