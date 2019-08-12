@@ -434,7 +434,6 @@ USAGE;
      */
     protected function reload()
     {
-        //todo
         $pid=$this->checkAndGetPid();
         if (!$pid) {
             die("PyServer is not running".PHP_EOL);
