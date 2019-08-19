@@ -24,19 +24,15 @@ interface ProtocolInterface
     /**
      * 解析内容数据
      * @param string $buffer 要解析的数据
-     * @param resource $fd 客户端连接句柄
-     * @param TransportInterface $connection 传输层实例
      * @return mixed 解析后的数据
      */
-    public static function decode($buffer,$fd,TransportInterface $connection);
+    public static function decode($buffer);
 
     /**
      * 编码内容
      * @param string $content 要编码的内容
-     * @param resource $fd 客户端连接句柄
-     * @param TransportInterface $connection 传输层实例
      * @return string 编码后的内容
      */
-    public static function encode($content,$fd,TransportInterface $connection);
+    public static function encode($content);
 
 }
