@@ -10,7 +10,7 @@ require_once "vendor/autoload.php";
 
 use Pengyu\Server\Worker\Server;
 
-$worker=new Server("ws://0.0.0.0:8080");
+$worker=new Server("http://0.0.0.0:8080");
 //$worker->config(["deamon"=>true,"workerCount"=>2]);
 $worker->on('request',function ($content,$response){
     $response->end(json_encode($content));

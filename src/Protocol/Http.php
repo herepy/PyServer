@@ -8,10 +8,11 @@
 
 namespace Pengyu\Server\Protocol;
 
+use Pengyu\Server\Protocol\Http\Response;
+use Pengyu\Server\Protocol\Http\Session;
 use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Transport\TransportInterface;
 use Pengyu\Server\Util\Log;
-use Pengyu\Server\Util\Session;
 
 class Http implements ProtocolInterface
 {

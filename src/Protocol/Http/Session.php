@@ -6,7 +6,7 @@
  * Time: 10:52
  */
 
-namespace Pengyu\Server\Util;
+namespace Pengyu\Server\Protocol\Http;
 
 
 use Pengyu\Server\Protocol\Http;

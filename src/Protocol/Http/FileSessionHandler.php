@@ -6,7 +6,7 @@
  * Time: 10:06
  */
 
-namespace Pengyu\Server\Util;
+namespace Pengyu\Server\Protocol\Http;
 
 class FileSessionHandler implements \SessionHandlerInterface
 {

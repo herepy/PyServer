@@ -6,8 +6,9 @@
  * Time: 12:23
  */
 
-namespace Pengyu\Server\Protocol;
+namespace Pengyu\Server\Protocol\Http;
 
+use Pengyu\Server\Protocol\Http;
 use Pengyu\Server\Transport\TransportInterface;
 
 class Response
