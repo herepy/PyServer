@@ -31,9 +31,10 @@ interface TransportInterface
      * 发送数据
      * @param resource $fd 接受者
      * @param string $content 发送内容
+     * @param bool $raw 是否发送原始内容
      * @return mixed
      */
-    public function send($fd,$content);
+    public function send($fd,$content,$raw=false);
 
     /**
      * 接受数据
