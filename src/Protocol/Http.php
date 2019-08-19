@@ -333,13 +333,13 @@ class Http implements ProtocolInterface
      * 设置响应头cookie
      * @param string $key 键
      * @param string $value 值
-     * @param string $expire 有效期时长
+     * @param int $expire 有效期时长
      * @param string $domain 域名
      * @param string $path 路径
      * @param bool $httpOnly 是否仅传输
      * @param bool $secure 是否仅在ssl下使用
      */
-    public static function setCookie($key,$value,$expire="",$domain="",$path="",$httpOnly=false,$secure=false)
+    public static function setCookie($key,$value,$expire=0,$domain="",$path="",$httpOnly=false,$secure=false)
     {
         $expire=$expire?$expire:ini_get('session.cookie_lifetime');
         $domain=$domain?$domain:ini_get('session.cookie_domain');
