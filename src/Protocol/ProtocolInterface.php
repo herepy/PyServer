@@ -15,7 +15,7 @@ interface ProtocolInterface
     /**
      * 获取内容长度大小
      * @param string $buffer 内容
-     * @param TransportInterface $connection 内容
+     * @param TransportInterface $connection 传输层实例
      * @return int 大小
      */
     public static function size($buffer,TransportInterface $connection);
@@ -23,7 +23,7 @@ interface ProtocolInterface
     /**
      * 解析内容数据
      * @param string $buffer 要解析的数据
-     * @param TransportInterface $connection 内容
+     * @param TransportInterface $connection 传输层实例
      * @return mixed 解析后的数据
      */
     public static function decode($buffer,TransportInterface $connection);
@@ -31,7 +31,7 @@ interface ProtocolInterface
     /**
      * 编码内容
      * @param string $content 要编码的内容
-     * @param TransportInterface $connection 内容
+     * @param TransportInterface $connection 传输层实例
      * @return string 编码后的内容
      */
     public static function encode($content,TransportInterface $connection);
