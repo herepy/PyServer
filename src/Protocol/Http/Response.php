@@ -13,7 +13,14 @@ use Pengyu\Server\Transport\TransportInterface;
 
 class Response
 {
+    /**
+     * @var resource 连接句柄
+     */
     protected $fd;
+
+    /**
+     * @var TransportInterface 传输层实例
+     */
     protected $connection;
 
     public function __construct($fd,TransportInterface $connection)
@@ -22,6 +29,10 @@ class Response
         $this->connection=$connection;
     }
 
+    /**
+     * 发送响应
+     * @param string $content 内容
+     */
     public function end($content)
     {
         $this->connection->send($this->fd,$content);
@@ -31,17 +42,36 @@ class Response
         }
     }
 
+    /**
+     * 设置http响应状态码
+     * @param int $status
+     */
     public function status($status)
     {
         Http::setStatus($status);
     }
 
+    /**
+     * 设置响应头
+     * @param string $key 键
+     * @param string $value 值
+     */
     public function header($key,$value)
     {
         Http::setHeader($key,$value);
     }
 
-    public function cookie($key,$value,$expire="",$domain="",$path="",$httpOnly=false,$secure=false)
+    /**
+     * 设置cookie
+     * @param string $key 键
+     * @param string $value 值
+     * @param int $expire 有效期，秒
+     * @param string $domain 所属域名
+     * @param string $path 路径
+     * @param bool $httpOnly 是否仅传输
+     * @param bool $secure 是否仅https下传输
+     */
+    public function cookie($key,$value,$expire=0,$domain="",$path="",$httpOnly=false,$secure=false)
     {
         Http::setCookie($key,$value,$expire,$domain,$path,$httpOnly,$secure);
     }
