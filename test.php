@@ -12,10 +12,11 @@ use Pengyu\Server\Worker\Server;
 
 $worker=new Server("ws://0.0.0.0:8080");
 //$worker->config(["deamon"=>true,"workerCount"=>2]);
-$worker->on('message',function ($connection,$fd,$content){
-    foreach ($connection->connections as $con) {
-        $connection->send($con,intval($fd)." say: hello,".$content);
-    }
+$worker->on('request',function ($content,$response){
+    $response->end(json_encode($content));
 });
 
+$worker->on('message',function (\Pengyu\Server\Transport\TransportInterface $connection,$fd,$content){
+    $connection->send($fd,"client say:".$content);
+});
 $worker->run();
