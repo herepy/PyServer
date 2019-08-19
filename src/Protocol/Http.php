@@ -92,28 +92,25 @@ class Http implements ProtocolInterface
      */
     public static function size($buffer,$fd,TransportInterface $connection)
     {
+        //已经获取到过该包头，本次只是包部分数据
+        if (isset($connection->buffer[intval($fd)])) {
+            return 0;
+        }
+
         //验证格式
         $tmp=explode("\r\n\r\n",$buffer,2);
         $header=$tmp[0];
         $headerArr=explode("\r\n",$header);
         if (!count($headerArr)) {
-            //第一次接受，包格式有问题
-            if (!isset($connection->buffer[intval($fd)])) {
-                $connection->close($fd,"Bad http package");
-                return false;
-            }
-            return 0;
+            $connection->close($fd,"Bat http package");
+            return false;
         }
 
         //解析请求首行
         $first=explode(" ",$headerArr[0]);
         if (count($first) != 3) {
-            //第一次接受，包格式有问题
-            if (!isset($connection->buffer[intval($fd)])) {
-                $connection->close($fd,"Bad http package");
-                return false;
-            }
-            return 0;
+            $connection->close($fd,"Bat http package");
+            return false;
         }
 
         //验证请求方法
