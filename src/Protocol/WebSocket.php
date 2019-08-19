@@ -33,10 +33,6 @@ class WebSocket implements ProtocolInterface
      +---------------------------------------------------------------+
      */
 
-    const CLOSE="ws00ws";
-    const PING="ws11ws";
-    const PONG="ws22ws";
-
     /**
      * 请求数据的大小
      * @param string $buffer 客户端请求数据
@@ -293,6 +289,10 @@ class WebSocket implements ProtocolInterface
         return true;
     }
 
+    /**
+     * 生成pong响应
+     * @return string
+     */
     public static function pong()
     {
         //第一个byte 10001010
