@@ -57,7 +57,7 @@ $worker->on('workerStart',function ($worker){
 $worker->run();
 ```
 
-##### HttpServer
+##### Http
 
 ```php
 require_once "vendor/autoload.php";
@@ -66,10 +66,15 @@ use Pengyu\Server\Worker\Server;
 
 $worker=new Server("http://0.0.0.0:8080");
 
-//设置接收到客户端消息时的回调
-$worker->on('message',function ($connection,$fd,$content){
+//设置接收到客户端请求时的回调
+$worker->on('request',function ($content,$response){
+    var_dump($content);
+    //相关设置
+    $response->status(200);
+    $response->header("Content-Type","text/html;charset=utf-8");
+    $response->cookie("name","py",3600);
     //响应数据
-    $connection->send($fd,"hello world");
+    $response->end("hello world");
 });
 
 $worker->run();
