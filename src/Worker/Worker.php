@@ -106,7 +106,7 @@ class Worker implements WorkerInterface
             socket_set_option($this->socket,SOL_SOCKET,SO_REUSEPORT,1);
         }
         socket_bind($this->socket,$address,$port);
-        socket_listen($this->socket);
+        socket_listen($this->socket,102400);
 
         if (function_exists('socket_import_stream') && $transport === 'tcp') {
             set_error_handler(function(){});
