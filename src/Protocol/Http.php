@@ -8,6 +8,7 @@
 
 namespace Pengyu\Server\Protocol;
 
+use Pengyu\Server\Transport\TransportInterface;
 use Pengyu\Server\Util\Session;
 
 class Http implements ProtocolInterface
@@ -84,39 +85,56 @@ class Http implements ProtocolInterface
     /**
      * 请求数据的大小
      * @param string $buffer 客户端请求数据
-     * @return int 从数据包中读取完整数据包大小，如果数据包有误或是数据包的一部分，返回0
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
+     * @return int|bool 从数据包中读取完整数据包大小，如果数据包有误返回false,如果时数据包的一部分，返回0
      */
-    public static function size($buffer)
+    public static function size($buffer,$fd,TransportInterface $connection)
     {
         //验证格式
         $tmp=explode("\r\n\r\n",$buffer,2);
         $header=$tmp[0];
         $headerArr=explode("\r\n",$header);
         if (!count($headerArr)) {
+            //第一次接受，包格式有问题
+            if (!isset($connection->buffer[intval($fd)])) {
+                $connection->close($fd,"Bad http package");
+                return false;
+            }
             return 0;
         }
 
         //解析请求首行
         $first=explode(" ",$headerArr[0]);
         if (count($first) != 3) {
+            //第一次接受，包格式有问题
+            if (!isset($connection->buffer[intval($fd)])) {
+                $connection->close($fd,"Bad http package");
+                return false;
+            }
             return 0;
         }
 
         //验证请求方法
         if (!in_array($first[0],self::$allowMethods)) {
-            return 0;
+            $connection->close($fd,"http method is not allowd");
+            return false;
         }
 
-        //没有负载的请求
-        if ($first[0] == "GET" || $first[0] == "HEAD" || $first[0] == "DELETE" || $first[0] == "OPTIONS") {
-            return strlen($header)+strlen("\r\n\r\n");
-        }
-
-        //有负载的,从Content-Length中获取负载大小
+        //有负载,从Content-Length中获取负载大小
         if (preg_match("/Content-Length: ?(\d+)/",$header,$matches)) {
-            return strlen($header)+strlen("\r\n\r\n")+$matches[1];
+            $size=strlen($header)+strlen("\r\n\r\n")+$matches[1];
+        } else { //没有负载
+            $size=strlen($header)+strlen("\r\n\r\n");
         }
-        return 0;
+
+        //超过单个包最大限制
+        if ($size > $connection->maxPackageSize) {
+            $connection->close($fd,"Beyond the maximum package limit");
+            return false;
+        }
+
+        return $size;
     }
 
     /**
