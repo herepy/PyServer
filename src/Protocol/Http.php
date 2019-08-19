@@ -8,6 +8,7 @@
 
 namespace Pengyu\Server\Protocol;
 
+use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Transport\TransportInterface;
 use Pengyu\Server\Util\Log;
 use Pengyu\Server\Util\Session;
@@ -140,7 +141,7 @@ class Http implements ProtocolInterface
      * @param string $buffer 客户端请求数据
      * @param resource $fd 客户端连接句柄
      * @param TransportInterface $connection 传输层实例
-     * @return array 解码后的相关数据
+     * @return mixed 解码后的相关数据
      */
     public static function decode($buffer,$fd,TransportInterface $connection)
     {
@@ -254,9 +255,20 @@ class Http implements ProtocolInterface
         //$_SESSION session默认有效期86400秒 业务中开启使用session： $session->start();
         $session=new Session("./runtime/session","PYSESSION");
 
-        return ["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
+        $data=["get"=>$_GET,"post"=>$_POST,"cookie"=>$_COOKIE,"file"=>$_FILES,
             "server"=>$_SERVER,"session"=>$_SESSION,"sessionHandler"=>$session
         ];
+
+        //触发onRequest回调
+        try {
+            $response=new Response($fd,$connection);
+            Event::dispatch("request",[$data,$response]);
+        } catch (\Throwable $throwable) {
+            $connection->close($fd,$throwable->getMessage());
+            return "";
+        }
+
+        return $data;
     }
 
     /**

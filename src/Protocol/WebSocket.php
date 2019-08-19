@@ -8,6 +8,9 @@
 
 namespace Pengyu\Server\Protocol;
 
+use Pengyu\Server\Scheduler\Event;
+use Pengyu\Server\Transport\TransportInterface;
+
 class WebSocket implements ProtocolInterface
 {
     /*       0                   1                   2                   3
@@ -34,17 +37,37 @@ class WebSocket implements ProtocolInterface
     const PING="ws11ws";
     const PONG="ws22ws";
 
-    public static function size($buffer)
+    /**
+     * 请求数据的大小
+     * @param string $buffer 客户端请求数据
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
+     * @return int|bool 从数据包中读取完整数据包大小，如果数据包有误返回false,如果时数据包的一部分，返回0
+     */
+    public static function size($buffer,$fd,TransportInterface $connection)
     {
+        //已经获取到过该包头，本次只是包部分数据
+        if (isset($connection->buffer[intval($fd)])) {
+            return 0;
+        }
+
+        //是否已经握手
+        if (!isset($connection->handshake[intval($fd)])) {
+            self::handshake($buffer,$fd,$connection);
+            return false;
+        }
+
         //错误的frame帧数据或数据的一部分
         if (strlen($buffer) < 6) {
-            return 0;
+            $connection->close($fd,"Bad websocket frame");
+            return false;
         }
 
         $mask=ord($buffer[1]) >> 7;
         //mask标志位是否置1(客户端发送的数据mask必须为1)
         if (!$mask) {
-            return 0;
+            $connection->close($fd,"client must set mask flag to 1");
+            return false;
         }
 
         //frame帧中payload len的值(2byte中去掉mask部分)
@@ -75,9 +98,11 @@ class WebSocket implements ProtocolInterface
     /**
      * 解析负载内容
      * @param string $buffer 客户端发送的数据
-     * @return mixed 负载内容
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
+     * @return string 负载内容
      */
-    public static function decode($buffer)
+    public static function decode($buffer,$fd,TransportInterface $connection)
     {
         //frame帧中payload len的值(2byte中去掉mask部分)
         $payloadLen=ord($buffer[1]) & 127;
@@ -88,12 +113,29 @@ class WebSocket implements ProtocolInterface
         //opcode
         $opcode=ord($buffer[0]) & 127;
         //处理一些控制码
-        if ($opcode == hexdec("%x8")) {
-            return self::CLOSE;
-        } else if ($opcode == hexdec("%x9")) {
-            return self::PING;
-        } else if ($opcode == hexdec("%xA")) {
-            return self::PONG;
+        if ($opcode == hexdec("%x8")) {   //close
+            $connection->close($fd);
+            return "";
+        } else if ($opcode == hexdec("%x9")) {  //ping
+            //生成pong返回给客户端
+            $pong=self::pong();
+            $connection->send($fd,$pong,true);
+
+            //触发onPing回调
+            try {
+                Event::dispatch("ping",[$connection,$fd]);
+            } catch (\Throwable $throwable) {
+                $connection->close($fd,$throwable->getMessage());
+            }
+            return "";
+        } else if ($opcode == hexdec("%xA")) {  //pong
+            //触发onPing回调
+            try {
+                Event::dispatch("pong",[$connection,$fd]);
+            } catch (\Throwable $throwable) {
+                $connection->close($fd,$throwable->getMessage());
+            }
+            return "";
         }
 
         if ($payloadLen == 126) {
@@ -113,15 +155,24 @@ class WebSocket implements ProtocolInterface
             $data.=$payloadData[$i] ^ $maskingKey[($i%4)];
         }
 
+        //触发onMessage回调
+        try {
+            Event::dispatch("message",[$connection,$fd,$data]);
+        } catch (\Throwable $throwable) {
+            $connection->close($fd,$throwable->getMessage());
+        }
+
         return $data;
     }
 
     /**
      * 生成frame帧数据
      * @param string $content 负载内容
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
      * @return string frame帧内容
      */
-    public static function encode($content)
+    public static function encode($content,$fd,TransportInterface $connection)
     {
         //第一个byte 10000001
         $firstByte=chr(129);
@@ -146,28 +197,33 @@ class WebSocket implements ProtocolInterface
     }
 
     /**
-     * 生成握手信息
+     * 握手
      * @param string $buffer 客户端握手数据
-     * @return mixed 握手返回信息，如果不是http请求，返回false
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
+     * @return bool
      */
-    public static function handshake($buffer)
+    public static function handshake($buffer,$fd,TransportInterface $connection)
     {
         //验证格式
         $tmp=explode("\r\n\r\n",$buffer,2);
         $header=$tmp[0];
         $headerArr=explode("\r\n",$header);
         if (!count($headerArr)) {
+            $connection->close($fd,"Bad handshake http package");
             return false;
         }
 
         //解析请求首行
         $first=explode(" ",$headerArr[0]);
         if (count($first) != 3) {
+            $connection->close($fd,"Bad handshake http package");
             return false;
         }
 
         //验证请求方法
         if ($first[0] != "GET") {
+            $connection->close($fd,"HandShake http method must be GET");
             return false;
         }
 
@@ -182,7 +238,7 @@ class WebSocket implements ProtocolInterface
         $secWebSocketVersion="13";
 
         $upgrade="";
-        $connection="";
+        $connectionValue="";
 
         //解析请求头
         foreach ($headerArr as $line) {
@@ -197,7 +253,7 @@ class WebSocket implements ProtocolInterface
 
             //获取Connection
             if ($key == "Connection") {
-                $connection=$value;
+                $connectionValue=$value;
             }
 
             //获取秘钥key
@@ -211,7 +267,8 @@ class WebSocket implements ProtocolInterface
             }
         }
 
-        if ($connection != "Upgrade" || $upgrade != "websocket") {
+        if ($connectionValue != "Upgrade" || $upgrade != "websocket") {
+            $connection->close($fd,"Upgrade error");
             return false;
         }
 
@@ -229,6 +286,21 @@ class WebSocket implements ProtocolInterface
             $data.="\r\n";
         }
 
-        return $data;
+        //发送握手信息
+        $connection->send($fd,$data,true);
+        $connection->handshake[intval($fd)]=1;
+
+        return true;
+    }
+
+    public static function pong()
+    {
+        //第一个byte 10001010
+        $firstByte=chr(138);
+
+        //负载长度
+        $len=0;
+
+        return $firstByte.chr($len);
     }
 }
