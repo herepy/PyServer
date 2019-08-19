@@ -9,6 +9,7 @@
 namespace Pengyu\Server\Protocol;
 
 use Pengyu\Server\Transport\TransportInterface;
+use Pengyu\Server\Util\Log;
 use Pengyu\Server\Util\Session;
 
 class Http implements ProtocolInterface
@@ -140,9 +141,11 @@ class Http implements ProtocolInterface
     /**
      * 解码请求数据
      * @param string $buffer 客户端请求数据
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
      * @return array 解码后的相关数据
      */
-    public static function decode($buffer)
+    public static function decode($buffer,$fd,TransportInterface $connection)
     {
         //初始化全局变量
         self::$status=200;
@@ -262,9 +265,11 @@ class Http implements ProtocolInterface
     /**
      * 编码发送的数据
      * @param string $content 数据内容
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
      * @return string
      */
-    public static function encode($content)
+    public static function encode($content,$fd,TransportInterface $connection)
     {
         $header = "HTTP/1.1 ".self::$status." ".self::$codes[self::$status]."\r\n";
         $header .= "Server: PyServer/1.0\r\n";
@@ -283,6 +288,21 @@ class Http implements ProtocolInterface
         foreach (self::$cookie as $key => $value) {
             $header.="Set-Cookie: ".$key."=".$value."\r\n";
         }
+
+        //记录访问日志
+        socket_getpeername($fd,$ip);
+        $info=[
+            "ip"        =>  $ip,
+            "method"    =>  $_SERVER["REQUEST_METHOD"],
+            "uri"       =>  $_SERVER["REQUEST_URI"],
+            "protocol"  =>  $_SERVER["SERVER_PROTOCOL"],
+            "code"      =>  self::$status,
+            "size"      =>  strlen($content) ? strlen($content) : "-",
+            "referfer"  =>  $_SERVER["HTTP_REFERER"] ? $_SERVER["HTTP_REFERER"] : "--",
+            "client"    =>  $_SERVER["HTTP_USER_AGENT"],
+        ];
+
+        Log::access($info);
 
         return $header."\r\n".$content;
     }
