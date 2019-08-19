@@ -33,8 +33,10 @@ interface ProtocolInterface
     /**
      * 编码内容
      * @param string $content 要编码的内容
+     * @param resource $fd 客户端连接句柄
+     * @param TransportInterface $connection 传输层实例
      * @return string 编码后的内容
      */
-    public static function encode($content);
+    public static function encode($content,$fd,TransportInterface $connection);
 
 }
