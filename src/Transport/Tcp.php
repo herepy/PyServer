@@ -157,7 +157,6 @@ class Tcp implements TransportInterface
 
     public function close($fd,$content=null)
     {
-        echo "close".PHP_EOL;
         if ($content) {
             $this->send($fd,$content);
         }
