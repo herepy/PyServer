@@ -118,16 +118,6 @@ class Worker
         socket_set_nonblock($this->socket);
     }
 
-    public function on($event, $callback)
-    {
-        // TODO: Implement on() method.
-    }
-
-    public function config($config)
-    {
-        // TODO: Implement config() method.
-    }
-
     public function run()
     {
         //onWorkerStart回调
