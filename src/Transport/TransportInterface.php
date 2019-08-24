@@ -8,17 +8,18 @@
 
 namespace Pengyu\Server\Transport;
 
-use Pengyu\Server\Worker\WorkerInterface;
+
+use Pengyu\Server\Worker\Worker;
 
 interface TransportInterface
 {
     /**
      * 创建一个传输层工具
      * Transport constructor.
-     * @param WorkerInterface $worker 所属的worker
+     * @param Worker $worker 所属的worker
      * @param string $protocol 使用的协议
      */
-    public function __construct(WorkerInterface $worker,$protocol=null);
+    public function __construct(Worker $worker,$protocol=null);
 
     /**
      * 接受客户端连接

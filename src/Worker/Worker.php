@@ -13,7 +13,7 @@ use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Scheduler\SchedulerInterface;
 use Pengyu\Server\Util\Log;
 
-class Worker implements WorkerInterface
+class Worker
 {
     /**
      * @var resource 监听socket

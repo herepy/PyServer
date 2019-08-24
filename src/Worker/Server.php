@@ -11,7 +11,7 @@ namespace Pengyu\Server\Worker;
 use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Util\Log;
 
-class Server implements WorkerInterface
+class Server
 {
 
     /**

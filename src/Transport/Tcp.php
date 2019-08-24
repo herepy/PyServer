@@ -11,12 +11,11 @@ namespace Pengyu\Server\Transport;
 use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Scheduler\SchedulerInterface;
 use Pengyu\Server\Worker\Worker;
-use Pengyu\Server\Worker\WorkerInterface;
 
 class Tcp implements TransportInterface
 {
     /**
-     * @var WorkerInterface 所属工作进程实例
+     * @var Worker 所属工作进程实例
      */
     public $worker;
 
@@ -51,7 +50,7 @@ class Tcp implements TransportInterface
     public $handshake=[];
 
 
-    public function __construct(WorkerInterface $worker, $protocol=null)
+    public function __construct(Worker $worker, $protocol=null)
     {
         $this->worker=$worker;
         $this->protocol=$protocol;
