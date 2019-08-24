@@ -8,10 +8,8 @@
 
 namespace Pengyu\Server\Transport;
 
-use Pengyu\Server\Protocol\Http;
 use Pengyu\Server\Scheduler\Event;
 use Pengyu\Server\Scheduler\SchedulerInterface;
-use Pengyu\Server\Util\Log;
 use Pengyu\Server\Worker\Worker;
 use Pengyu\Server\Worker\WorkerInterface;
 
