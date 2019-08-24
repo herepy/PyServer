@@ -269,7 +269,7 @@ USAGE;
             //停止
             case SIGINT:
                 $this->status="stoping";
-                $this->doStop(true);
+                $this->doStop();
                 break;
             //重启
             case SIGQUIT:
@@ -441,9 +441,6 @@ USAGE;
 
         //发送信号
         posix_kill($pid,SIGQUIT);
-
-        //验证是否成功 todo
-
     }
 
     /**
@@ -471,7 +468,8 @@ USAGE;
         Log::setFile($this->logFile,$this->accessFile);
 
         if (is_win()) {
-            return $this->runWorker();
+            $this->runWorker();
+            return;
         }
 
         //是否守护进程模式
