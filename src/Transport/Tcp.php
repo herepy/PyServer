@@ -25,14 +25,19 @@ class Tcp implements TransportInterface
     protected $protocol;
 
     /**
-     * @var int 缓冲区大小
+     * @var int 缓冲区大小 byte
      */
     public $maxSize=65535;
 
     /**
-     * @var int 可接受单个包大小
+     * @var int 可接受单个包大小 byte
      */
     public $maxPackageSize=8192000;
+
+    /**
+     * @var int 最大连接数
+     */
+    public $maxConnection=1000;
 
     /**
      * @var array 所有连接fd [intval($fd)=>$fd]
@@ -58,6 +63,11 @@ class Tcp implements TransportInterface
 
     public function accept($socket)
     {
+        //是否达到最大连接数
+        if (count($this->connections) >= $this->maxConnection) {
+            return;
+        }
+
         $con=socket_accept($socket);
         if ($con) {
             //非阻塞模式
