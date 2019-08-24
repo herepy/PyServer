@@ -174,12 +174,13 @@ class Select implements SchedulerInterface
             $read=$this->readEvent;
             $write=$this->writeEvent;
             $except=[];
+
             //定时器事件执行
             $this->dealTimer();
 
             //没有可读写事件产生
             set_error_handler(function (){});
-            if (socket_select($read,$write,$except,1) == 0) {
+            if (socket_select($read,$write,$except,3) == 0) {
                 continue;
             }
             set_error_handler(null);
