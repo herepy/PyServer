@@ -64,8 +64,14 @@ class Server
      */
     protected $pidFile="/run/pyserver.pid";
 
+    /**
+     * @var string 状态
+     */
     protected $status="running";
 
+    /**
+     * @var null 退出时等待最后退出的进程pid
+     */
     protected $waitExitWorkerPid=null;
 
     /**
